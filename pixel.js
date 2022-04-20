@@ -1,6 +1,19 @@
-// assume that imageData has already exist
+var canvas, imageData, ctx;
 
-var getPixel = function (x, y) {
+function initCanvas(canvasId) {
+	canvas = document.getElementById(canvasId);
+	ctx = canvas.getContext ('2d');
+	imageData = ctx.createImageData (canvas.width, canvas.height);
+}
+
+function transXY(x, y) {
+	let oX = canvas.width / 2 + x
+	let oY = canvas.height / 2 - y
+	return {x: oX, y: oY}
+}
+
+function getPixel(x, y) {
+	({x, y} = transXY(x, y));
 	var index = (y * imageData.width + x) * 4;
 	return {
 		R: imageData.data[index+0],
@@ -10,7 +23,8 @@ var getPixel = function (x, y) {
 	};
 }
 
-var putPixel = function (x, y, c) {
+function putPixel(x, y, c) {
+	({x, y} = transXY(x, y));
 	var index = (y * imageData.width + x) * 4;
 	imageData.data[index+0] = c.R;
 	imageData.data[index+1] = c.G;
