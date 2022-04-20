@@ -3,9 +3,18 @@
  <head>
   <title>canvas</title>
   <meta charset="utf-8">
+  <style>
+  canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  </style>
  </head>
- <body>
-  <canvas id="canvas" width="600" height="600">
+ <body style='background-color: #333333;'>
+  <canvas id="canvas" width="600" height="600"  style='background-color: black;'>
     <p>Your browser do not support canvas!</p>
   </canvas>
  </body>
@@ -18,7 +27,7 @@
   <script>
 	window.onload = function () {
 		initCanvas('canvas');
-		updateCanvas();
+		draw();
 	}
   </script>
  </footer>

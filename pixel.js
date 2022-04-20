@@ -1,37 +1,36 @@
-var canvas, imageData, ctx;
+var canvas, imD, ctx;
 
 function initCanvas(canvasId) {
 	canvas = document.getElementById(canvasId);
 	ctx = canvas.getContext ('2d');
-	imageData = ctx.createImageData (canvas.width, canvas.height);
+	imD = ctx.createImageData (canvas.width, canvas.height);
 }
 
 function transXY(x, y) {
-	let oX = canvas.width / 2 + x
-	let oY = canvas.height / 2 - y
-	return {x: oX, y: oY}
-}
-
-function getPixel(x, y) {
-	({x, y} = transXY(x, y));
-	var index = (y * imageData.width + x) * 4;
-	return {
-		R: imageData.data[index+0],
-		G: imageData.data[index+1],
-		B: imageData.data[index+2],
-		A: imageData.data[index+3]
-	};
+	return {x: canvas.width/2+x, y: canvas.height/2-y}
 }
 
 function putPixel(x, y, c) {
 	({x, y} = transXY(x, y));
-	var index = (y * imageData.width + x) * 4;
-	imageData.data[index+0] = c.R;
-	imageData.data[index+1] = c.G;
-	imageData.data[index+2] = c.B;
-	if (c.A) {
-		imageData.data[index+3] = c.A;
-	} else {
-		imageData.data[index+3] = 255;
-	}
+	let {R, G, B, A} = c;
+	let i = (y * imD.width + x) * 4;
+	imD.data[i+0] = R;
+	imD.data[i+1] = G;
+	imD.data[i+2] = B;
+	imD.data[i+3] = A ? A : 255;
+}
+
+function getPixel(x, y) {
+	({x, y} = transXY(x, y));
+	let i = (y * imD.width + x) * 4;
+	return {
+		R: imD.data[i+0],
+		G: imD.data[i+1],
+		B: imD.data[i+2],
+		A: imD.data[i+3]
+	};
+}
+
+function updateCanvas() {
+	ctx.putImageData(imD, 0, 0);
 }

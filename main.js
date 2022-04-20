@@ -1,4 +1,4 @@
-function updateCanvas() {
+function draw() {
 	for (let i=-100; i<100; ++i) {
 		putPixel(-100, i, {R: 255, G: 0, B: 0});
 	}
@@ -25,5 +25,5 @@ function updateCanvas() {
 		}
 	}
 	
-	ctx.putImageData(imageData, 0, 0);
+	updateCanvas();
 }
