@@ -1,9 +1,10 @@
-var canvas, imD, ctx;
+var canvas, imD, ctx, viewport;
 
-function initCanvas(canvasId) {
+function init(canvasId) {
 	canvas = document.getElementById(canvasId);
 	ctx = canvas.getContext ('2d');
 	imD = ctx.createImageData (canvas.width, canvas.height);
+	viewport = {W: 1, H: 1}
 }
 
 function transXY(x, y) {
@@ -33,4 +34,8 @@ function getPixel(x, y) {
 
 function updateCanvas() {
 	ctx.putImageData(imD, 0, 0);
+}
+
+function c2vp(x, y) {
+	return {X: x * viewport.W / canvas.width, Y: y * viewport.H / canvas.height, Z: 1}
 }

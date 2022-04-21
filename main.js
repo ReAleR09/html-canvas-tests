@@ -1,27 +1,29 @@
 function draw() {
-	for (let i=-100; i<100; ++i) {
-		putPixel(-100, i, {R: 255, G: 0, B: 0});
-	}
-	for (let i=-100; i<100; ++i) {
-		putPixel(100, i, {R: 0, G: 255, B: 0});
-	}
-	for (let i=-100; i<100; ++i) {
-		putPixel(i, -100, {R: 0, G: 0, B: 255});
-	}
-	for (let i=-100; i<100; ++i) {
-		putPixel(i, 100, {R: 255, G: 255, B: 0});
-	}
-
-	for (let i=-100; i<100; ++i) {
-		putPixel(i, i, {R: 0, G: 255, B: 255});
-	}
-	for (let i=-100; i<100; ++i) {
-		putPixel(i, -i, {R: 255, G: 0, B: 255});
-	}
-
-	for (const x of Array(20).keys()) {
-		for (const y of Array(20).keys()) {
-			putPixel(x-10, y-10, {R: 128, G: 128, B: 128});
+	let spheres = [
+		{
+			center: {X: 0, Y: -1, Z: 3},
+			radius: 1,
+			color: {R: 255, G: 0, B: 0}
+		},
+		{
+			center: {X: 2, Y: 0, Z: 4},
+			radius: 1,
+			color: {R: 0, G: 0, B: 255}
+		},
+		{
+			center: {X: -2, Y: 0, Z: 4},
+			radius: 1,
+			color: {R: 0, G: 255, B: 0}
+		}
+	]
+	
+	let O = {X: 0, Y: 0, Z: 0};
+	
+	for (let x=-canvas.width/2; x < canvas.width/2; ++x) {
+		for (let y=-canvas.height/2; y < canvas.height/2; ++y) {
+			let D = c2vp(x, y);
+			let color = traceRay(spheres, O, D, 1, Infinity);
+			putPixel(x, y, color);
 		}
 	}
 	
