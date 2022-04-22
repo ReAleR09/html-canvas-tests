@@ -1,23 +1,23 @@
 function draw() {
 	let spheres = [
 		{
-			center: {X: 0, Y: -1, Z: 3},
+			center: new Point(0, -1, 3),
 			radius: 1,
-			color: {R: 255, G: 0, B: 0}
+			color: new Color(255, 0, 0)
 		},
 		{
-			center: {X: 2, Y: 0, Z: 4},
+			center: new Point(2, 0, 4),
 			radius: 1,
-			color: {R: 0, G: 0, B: 255}
+			color: new Color(0, 0, 255)
 		},
 		{
-			center: {X: -2, Y: 0, Z: 4},
+			center: new Point(-2, 0, 4),
 			radius: 1,
-			color: {R: 0, G: 255, B: 0}
+			color: new Color(0, 255, 0)
 		}
 	]
 	
-	let O = {X: 0, Y: 0, Z: 0};
+	let O = new Point(0, 0, 0);
 	
 	for (let x=-canvas.width/2; x < canvas.width/2; ++x) {
 		for (let y=-canvas.height/2; y < canvas.height/2; ++y) {

@@ -13,29 +13,28 @@ function transXY(x, y) {
 
 function putPixel(x, y, c) {
 	({x, y} = transXY(x, y));
-	let {R, G, B, A} = c;
 	let i = (y * imD.width + x) * 4;
-	imD.data[i+0] = R;
-	imD.data[i+1] = G;
-	imD.data[i+2] = B;
-	imD.data[i+3] = A ? A : 255;
+	imD.data[i+0] = c.r;
+	imD.data[i+1] = c.g;
+	imD.data[i+2] = c.b;
+	imD.data[i+3] = 255; // alpha
 }
 
 function getPixel(x, y) {
 	({x, y} = transXY(x, y));
 	let i = (y * imD.width + x) * 4;
-	return {
-		R: imD.data[i+0],
-		G: imD.data[i+1],
-		B: imD.data[i+2],
-		A: imD.data[i+3]
-	};
+	return new Color(
+		imD.data[i+0],
+		imD.data[i+1],
+		imD.data[i+2]
+	);
 }
 
 function updateCanvas() {
 	ctx.putImageData(imD, 0, 0);
 }
 
+// canvas coordinates to viewpoint coordinates
 function c2vp(x, y) {
-	return {X: x * viewport.W / canvas.width, Y: y * viewport.H / canvas.height, Z: 1}
+	return new Point(x * viewport.W / canvas.width, y * viewport.H / canvas.height, 1)
 }

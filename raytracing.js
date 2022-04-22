@@ -3,7 +3,7 @@ function traceRay(spheres, O, D, t_min, t_max) {
 	let closest_sphere = undefined;
 	
 	for (const sphere of spheres) {
-		let {T1, T2} = intersectRaySphere(O, D, sphere);
+		let {T1, T2} = intersectRaySphere(Vector.fromPoint(O), Vector.fromPoint(D), sphere);
 		if (T1 > t_min && T1 < t_max && T1 < closest_t) {
 			closest_t = T1;
 			closest_sphere = sphere;
@@ -15,7 +15,7 @@ function traceRay(spheres, O, D, t_min, t_max) {
 	}
 	
 	if (closest_sphere === undefined) {
-		return {R: 0, G: 0, B: 0}
+		return new Color(0, 0, 0);
 	}
 	
 	return closest_sphere.color;
@@ -23,11 +23,11 @@ function traceRay(spheres, O, D, t_min, t_max) {
 
 function intersectRaySphere(O, D, sphere) {
 	let r = sphere.radius;
-	let CO = sub(O, sphere.center);
+	let CO = O.sub(Vector.fromPoint(sphere.center));
 	
-	let a = dot(D, D);
-	let b = 2 * dot(CO, D);
-	let c = dot(CO, CO) - r*r;
+	let a = D.dot(D);
+	let b = 2 * CO.dot(D);
+	let c = CO.dot(CO) - r*r;
 	
 	let discr = b*b - 4 * a * c;
 	if (discr < 0) {
