@@ -38,29 +38,29 @@ function start() {
     document.addEventListener('keydown', function (event) {
       switch(event.code) {
         case 'KeyW':
-          movement.y += 0.1;
+          movement.y += 0.02;
           break;
         case 'KeyS':
-          movement.y -= 0.1;
+          movement.y -= 0.02;
           break;
         case 'KeyA':
-          movement.x -= 0.1;
+          movement.x -= 0.02;
           break;
         case 'KeyD':
-          movement.x += 0.1;
+          movement.x += 0.02;
           break;
         case 'ArrowUp':
-          movement.z += 0.1;
+          movement.z += 0.02;
           break;
         case 'ArrowDown':
-          movement.z -= 0.1;
+          movement.z -= 0.02;
           break;
         default:
           return;
       }
     });
 
-	// yay, frame update frequency is 50ms which is 20 frames per second, cinematique experience >:)
+	// yay, frame update frequency is 20ms which is 50 frames per second, cinematique experience >:)
 	setInterval(() => {
 		const a = performance.now();
 
@@ -69,7 +69,7 @@ function start() {
 		resetMovement();
 
 		console.log('FT: ' + (performance.now() - a));
-	}, 50);
+	}, 20);
 }
 
 function draw(cameraPos) {

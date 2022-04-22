@@ -8,4 +8,8 @@ class Color {
 	add(o) {
 		return new Color(this.r + o.r, this.g + o.g, this.b + o.b)
 	}
+
+	invert() {
+		return new Color(255 - this.r, 255 - this.g, 255 - this.b)
+	}
 }

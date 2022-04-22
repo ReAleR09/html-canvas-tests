@@ -2,31 +2,30 @@ const bgColor = new Color(0, 0, 0);
 
 function traceRay(spheres, COs, viewportVector, t_min, t_max) {
 	let closest_t = Infinity;
-	let closest_sphere = undefined;
+	let closest_color = bgColor;
+	let isInside = false;
 	
 	for (let i = 0; i < spheres.length; i++) {
 		const sphere = spheres[i];
 		const CO = COs[i];
 
-		const T2 = intersectRaySphere(CO, viewportVector, sphere.radius);
-		// if (T1 > t_min && T1 < t_max && T1 < closest_t) {
-		// 	closest_t = T1;
-		// 	closest_sphere = sphere;
-		// }
+		const [T1, T2] = intersectRaySphere(CO, viewportVector, sphere.radius);
+		
 		if (T2 > t_min && T2 < t_max && T2 < closest_t) {
 			closest_t = T2;
-			closest_sphere = sphere;
+			closest_color = sphere.color;
+			isInside = false;
+		} else if (T1 > t_min && T1 < t_max && T1 < closest_t) {
+			closest_t = T1;
+			closest_color = sphere.color;
+			isInside = true;
 		}
 	}
 	
-	if (closest_sphere === undefined) {
-		return bgColor;
-	}
-	
-	return closest_sphere.color;
+	return isInside ? closest_color.invert() : closest_color;
 }
 
-// const bgPos = [Infinity, Infinity];
+const bgPos = [Infinity, Infinity];
 
 function intersectRaySphere(CO, D, r) {
 	let a = D.length() * 2;
@@ -35,10 +34,10 @@ function intersectRaySphere(CO, D, r) {
 	
 	let discr = b*b - 2 * a * c;
 	if (discr < 0) {
-		return Infinity;
+		return bgPos;
 	}
 	
-	// let t1 = (-b + Math.sqrt(discr)) / (a);
+	let t1 = (-b + Math.sqrt(discr)) / (a);
 	let t2 = (-b - Math.sqrt(discr)) / (a);
-	return t2;
+	return [t1, t2];
 }
