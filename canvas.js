@@ -5,6 +5,7 @@ function init(canvasId) {
 	ctx = canvas.getContext ('2d');
 	imD = ctx.createImageData (canvas.width, canvas.height);
 	viewport = {W: 1, H: 1}
+	return canvas;
 }
 
 function transXY(x, y) {
