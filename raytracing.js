@@ -1,8 +1,6 @@
-const bgColor = new Color(0, 0, 0);
-
 function traceRay(spheres, COs, viewportVector, t_min, t_max) {
 	let closest_t = Infinity;
-	let closest_color = bgColor;
+	let closest_color = BG_COLOR;
 	let isInside = false;
 	
 	for (let i = 0; i < spheres.length; i++) {

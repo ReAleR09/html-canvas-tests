@@ -9,21 +9,21 @@ function init(canvasId) {
 }
 
 function transXY(x, y) {
-	return {x: canvas.width/2+x, y: canvas.height/2-y}
+	return [canvas.width/2+x, canvas.height/2-y];
 }
 
-function putPixel(x, y, c) {
-	({x, y} = transXY(x, y));
-	let i = (y * imD.width + x) * 4;
+function putPixel(xOrig, yOrig, c) {
+	const [x, y] = transXY(xOrig, yOrig);
+	const i = (y * imD.width + x) * 4;
 	imD.data[i+0] = c.r;
 	imD.data[i+1] = c.g;
 	imD.data[i+2] = c.b;
 	imD.data[i+3] = 255; // alpha
 }
 
-function getPixel(x, y) {
-	({x, y} = transXY(x, y));
-	let i = (y * imD.width + x) * 4;
+function getPixel(xOrig, yOrig) {
+	const [x, y] = transXY(xOrig, yOrig);
+	const i = (y * imD.width + x) * 4;
 	return new Color(
 		imD.data[i+0],
 		imD.data[i+1],
