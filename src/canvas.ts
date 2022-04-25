@@ -1,5 +1,5 @@
 import { Color } from './color';
-import { Point } from './vector';
+import { Point } from './models/Point';
 
 export var canvas, imD, ctx, viewport; // TODO NO GLOBAL VARS!
 

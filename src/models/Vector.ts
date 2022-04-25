@@ -1,7 +1,3 @@
-export class Point {
-	constructor(public x, public y, public z) {}
-}
-
 export class Vector {
 	constructor(public x, public y, public z) {}
 	

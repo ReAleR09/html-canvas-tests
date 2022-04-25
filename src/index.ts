@@ -1,25 +1,14 @@
-import { c2vp, canvas, init, putPixel, updateCanvas } from "./canvas";
+import { canvas, init,} from "./canvas";
 import { Color } from "./color";
-import { CHECKERBOARD_MODE, FPS_MEASURE_COUNTER, FRAME_TIME } from "./consts";
-import { traceRay } from "./raytracing";
-import { Vector, Point } from "./vector";
+import { IS_CHECKERBOARD_ENABLED, FPS_MEASURE_COUNTER, FRAME_TIME } from "./consts";
+import { Point } from "./models/Point";
+import { Sphere } from "./models/Sphere";
+import { ClassicRender } from "./renderers/classic";
 
 const spheres = [
-	{
-		center: new Point(0, -1, 3),
-		radius: 1,
-		color: new Color(255, 0, 0)
-	},
-	{
-		center: new Point(2, 0, 4),
-		radius: 1,
-		color: new Color(0, 0, 255)
-	},
-	{
-		center: new Point(-2, 0, 4),
-		radius: 1,
-		color: new Color(0, 255, 0)
-	}
+	new Sphere(new Point(0, -1, 3), 1, new Color(255, 0, 0)),
+	new Sphere(new Point(2, 0, 4), 1, new Color(0, 0, 255)),
+	new Sphere(new Point(-2, 0, 4), 1, new Color(0, 255, 0)),
 ];
 
 // left-right, up-down, close-far
@@ -40,55 +29,6 @@ const updateCamera = () => {
 	CAMERA_POS.z += movement.z;
 }
 
-const calcAndPaintPixel = (x, y, spheres, COs) => {
-	const D = c2vp(x, y);
-	const viewportVector = Vector.fromPoint(D);
-	const color = traceRay(spheres, COs, viewportVector, 1, Infinity);
-	
-	putPixel(x, y, color);
-}
-
-function draw(cameraPos) {
-	const xStart = -canvas.width/2;
-	const xEnd = canvas.width/2;
-
-	const yStart = -canvas.height/2;
-	const yEnd = canvas.height/2;
-
-	const cameraVector = Vector.fromPoint(cameraPos);
-	const COs = spheres.map((sphere) => cameraVector.sub(Vector.fromPoint(sphere.center)));
-
-	for (let x = xStart; x < xEnd; ++x) {
-		for (let y = yStart; y < yEnd; ++y) {
-			calcAndPaintPixel(x, y, spheres, COs);
-		}
-	}
-	
-	updateCanvas();
-}
-
-let isEvenDraw = true;
-
-function checkerboardDraw(cameraPos) {
-	const xStart = -canvas.width/2; // this will variate "black/white cells" on checkerboard 
-	const xEnd = canvas.width/2;
-	const yStartBase = -canvas.height/2;
-	const yEnd = canvas.height/2;
-
-	const cameraVector = Vector.fromPoint(cameraPos);
-	const COs = spheres.map((sphere) => cameraVector.sub(Vector.fromPoint(sphere.center)));
-
-	for (let x = xStart; x < xEnd; x++) {
-		const yStart = yStartBase + (isEvenDraw ? 0 : 1);
-		for (let y = yStart; y < yEnd; y+=2) {
-			calcAndPaintPixel(x, y, spheres, COs);
-		}
-	}
-	
-	updateCanvas();
-
-	isEvenDraw = !isEvenDraw;
-}
 
 const start = () => {
 	init('canvas');
@@ -117,14 +57,21 @@ const start = () => {
       }
     });
 
-	const renderFrame = CHECKERBOARD_MODE ? checkerboardDraw : draw;
+    const dimensions = {
+        xStart: -canvas.width/2,
+        xEnd: canvas.width/2,
+        yStart: -canvas.height/2,
+        yEnd: canvas.height/2,
+    }
+
+    const renderer = new ClassicRender(dimensions, IS_CHECKERBOARD_ENABLED);
 
 	let startPeriod = performance.now();
 	let framesDrawn = 0;
 	setInterval(() => {
 		updateCamera();
 		const startRender = performance.now();
-		renderFrame(CAMERA_POS);
+		renderer.render(CAMERA_POS, spheres);
 		const endRender = performance.now();
 		resetMovement();
 		
@@ -142,7 +89,4 @@ const start = () => {
 	}, FRAME_TIME);
 }
 
-
-window.onload = function () {
-  start();
-}
+start();
