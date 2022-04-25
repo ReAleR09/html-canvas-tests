@@ -1,3 +1,9 @@
+import { c2vp, canvas, init, putPixel, updateCanvas } from "./canvas";
+import { Color } from "./color";
+import { CHECKERBOARD_MODE, FPS_MEASURE_COUNTER, FRAME_TIME } from "./consts";
+import { traceRay } from "./raytracing";
+import { Vector, Point } from "./vector";
+
 const spheres = [
 	{
 		center: new Point(0, -1, 3),
@@ -84,7 +90,7 @@ function checkerboardDraw(cameraPos) {
 	isEvenDraw = !isEvenDraw;
 }
 
-function start() {
+const start = () => {
 	init('canvas');
     document.addEventListener('keydown', function (event) {
       switch(event.code) {
@@ -134,4 +140,9 @@ function start() {
 		}
 		
 	}, FRAME_TIME);
+}
+
+
+window.onload = function () {
+  start();
 }

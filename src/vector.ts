@@ -1,35 +1,27 @@
-class Point {
-	constructor(x, y, z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
+export class Point {
+	constructor(public x, public y, public z) {}
 }
 
-class Vector {
-	constructor(x, y, z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
+export class Vector {
+	constructor(public x, public y, public z) {}
 	
-	static fromPoint(p) {
+	static fromPoint(p): Vector {
 		return new Vector(p.x, p.y, p.z);
 	}
 	
-	add(o) {
+	add(o): Vector {
 		return new Vector(this.x + o.x, this.y + o.y, this.z + o.z);
 	}
 	
-	sub(o) {
+	sub(o): Vector {
 		return new Vector(this.x - o.x, this.y - o.y, this.z - o.z);
 	}
 	
-	dot(o) {
+	dot(o): number {
 		return this.x * o.x + this.y * o.y + this.z * o.z
 	}
 
-	length() {
+	length(): number {
 		return Math.pow(this.x, 2) + Math.pow(this.y, 2) + Math.pow(this.z, 2);
 	}
 }

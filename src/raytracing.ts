@@ -1,4 +1,6 @@
-function traceRay(spheres, COs, viewportVector, t_min, t_max) {
+import { BG_COLOR } from "./consts";
+
+export function traceRay(spheres, COs, viewportVector, t_min, t_max) {
 	let closest_t = Infinity;
 	let closest_color = BG_COLOR;
 	let isInside = false;
@@ -25,7 +27,7 @@ function traceRay(spheres, COs, viewportVector, t_min, t_max) {
 
 const bgPos = [Infinity, Infinity];
 
-function intersectRaySphere(CO, D, r) {
+export function intersectRaySphere(CO, D, r) {
 	let a = D.length() * 2;
 	let b = 2 * CO.dot(D);
 	let c = CO.length() - r*r;
