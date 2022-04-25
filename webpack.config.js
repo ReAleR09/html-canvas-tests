@@ -10,6 +10,9 @@ const config = {
     filename: 'bundle.js'
   },
   plugins: [
+    new CopyPlugin({
+        patterns: [{ from: './src/workers', to: 'workers' }],
+    }),
     new HtmlWebpackPlugin({
         template: './src/index.html',   
         title: 'GRAPHON',
@@ -31,7 +34,6 @@ const config = {
       '.js'
     ]
   },
-  watch: true,
   devServer: {
     static: './dist',
   },

@@ -1,9 +1,11 @@
 import { canvas, init,} from "./canvas";
 import { Color } from "./color";
-import { IS_CHECKERBOARD_ENABLED, FPS_MEASURE_COUNTER, FRAME_TIME } from "./consts";
+import { IS_CHECKERBOARD_ENABLED, FPS_MEASURE_COUNTER, FRAME_TIME, WEB_WORKERS } from "./consts";
 import { Point } from "./models/Point";
 import { Sphere } from "./models/Sphere";
 import { ClassicRender } from "./renderers/classic";
+import { ParallelledRender } from "./renderers/parallelled";
+import { RendererAbstract } from "./renderers/renderer.abstract";
 
 const spheres = [
 	new Sphere(new Point(0, -1, 3), 1, new Color(255, 0, 0)),
@@ -64,7 +66,18 @@ const start = () => {
         yEnd: canvas.height/2,
     }
 
-    const renderer = new ClassicRender(dimensions, IS_CHECKERBOARD_ENABLED);
+    let renderer: RendererAbstract;
+    if (WEB_WORKERS > 0) {
+        renderer = new ParallelledRender(
+            dimensions,
+            IS_CHECKERBOARD_ENABLED,
+            WEB_WORKERS,
+            './workers/render-worker.js'
+        );
+    } else {
+        renderer = new ClassicRender(dimensions, IS_CHECKERBOARD_ENABLED);
+    }
+    
 
 	let startPeriod = performance.now();
 	let framesDrawn = 0;

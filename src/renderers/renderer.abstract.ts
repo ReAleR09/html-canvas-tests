@@ -4,7 +4,7 @@ import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";
 import { traceRay } from "../raytracing";
 
-interface CanvasDimensions {
+export interface CanvasDimensions {
     xStart: number;
     xEnd: number;
     yStart: number;
@@ -23,7 +23,7 @@ export abstract class RendererAbstract {
         this.yStep = this.checkerBoard ? 2 : 1;
     }
 
-    protected abstract _render(cameraPos: Point, spheres: Sphere[]): void;
+    protected abstract _render(cameraPos: Point, spheres: Sphere[]): Promise<void>;
 
     protected _getYstart() {
         return this.checkerBoard
