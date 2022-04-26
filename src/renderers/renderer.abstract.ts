@@ -21,10 +21,10 @@ export abstract class RendererAbstract {
     /**
      * Inheritor is responsible for calculating all pixel data and putting
      * it to canvas'es image data
-     * @param cameraPos 
+     * @param cameraVector 
      * @param spheres 
      */
-    protected abstract _render(cameraPos: Point, spheres: Sphere[]): Promise<void>;
+    protected abstract _render(cameraVector: Vector, spheres: Sphere[]): Promise<void>;
 
     protected _getYstart() {
         const dimensions = this.canvas.getCanvasDimensionsInCenteredCoords();
@@ -33,8 +33,8 @@ export abstract class RendererAbstract {
             : dimensions.yStart;
     }
 
-    public render(cameraPos: Point, spheres: Sphere[]): void {
-        this._render(cameraPos, spheres);
+    public render(cameraVector: Vector, spheres: Sphere[]): void {
+        this._render(cameraVector, spheres);
         this.isEvenDraw = !this.isEvenDraw;
         this.updateCanvas();
     }
@@ -44,7 +44,7 @@ export abstract class RendererAbstract {
     }
 
     protected calcPixel(x: number, y: number, spheres: Sphere[], COs: Vector[]): Color {
-        const viewportVector = this.canvas.absoluteCoordsToViewpointVector(x, y);
+        const viewportVector = this.canvas.centeredCoordsToViewpointVector(x, y);
         return traceRay(spheres, COs, viewportVector, 1, Infinity);
     }
 }

@@ -3,39 +3,43 @@ import { Point } from "./Point"
 
 export class Sphere {
 
-    // seven 4-bytes floats
-    static readonly BYTE_SIZE = 28;
+    static readonly BYTE_SIZE = 19;
 
     constructor (
-        public center: Point,
-        public radius: number,
-        public color: Color,
+        public center: Point, // 3 4-byte floats = 12
+        public radius: number, // 1 4-byte float = 4
+        public color: Color,// 3 1-byte clamped int = 3
     ) {}
 
-    writeToFloat32Array(float32array: Float32Array) {
-        if (float32array.byteLength !== Sphere.BYTE_SIZE) {
-            throw new Error(`Float32Array must be length of ${Sphere.BYTE_SIZE}, ${float32array.byteLength} given`);
-        }
+    // TODO i don't like arrayBuffer being passed directly, refactor!
+    writeToArrayBuffer(arrayBuffer, offset): number {
+        let OFFSET = offset;
+
+        const float32array = new Float32Array(arrayBuffer, OFFSET, 4); // 16 bytes
         float32array[0] = this.center.x;
         float32array[1] = this.center.y;
         float32array[2] = this.center.z;
-
         float32array[3] = this.radius;
+        OFFSET += float32array.byteLength;
 
-        float32array[4] = this.color.r;
-        float32array[5] = this.color.g;
-        float32array[6] = this.color.b;
+        const clampedIntArray = new Uint8ClampedArray(arrayBuffer, OFFSET, 3);
+
+        clampedIntArray[0] = this.color.r;
+        clampedIntArray[1] = this.color.g;
+        clampedIntArray[2] = this.color.b;
+        OFFSET += clampedIntArray.byteLength;
+
+        return OFFSET - offset;
     }
 
-    static fromFloat32Array(float32array: Float32Array) {
-        if (float32array.byteLength !== Sphere.BYTE_SIZE) {
-            throw new Error(`Float32Array must be length of ${Sphere.BYTE_SIZE}, ${float32array.byteLength} given`);
-        }
+    static readFromArrayBuffer(arrayBuffer, offset) {
+        const float32array = new Float32Array(arrayBuffer, offset, 4); // 16 bytes
+        const clampedIntArray = new Uint8ClampedArray(arrayBuffer, offset + float32array.byteLength, 3);
 
         return new Sphere(
             new Point(float32array[0] , float32array[1] , float32array[2]),
             float32array[3],
-            new Color(float32array[4] , float32array[5] , float32array[6])
+            new Color(clampedIntArray[0] , clampedIntArray[1] , clampedIntArray[2])
         );
     }
 }

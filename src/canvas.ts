@@ -7,7 +7,7 @@ export class Canvas {
     
     protected context2d: CanvasRenderingContext2D;
     protected imageData: ImageData;
-    protected viewPort: [W: number, H: number];
+    public viewPort: [W: number, H: number]; // TODO ahhhh, public
 
     constructor(protected canvas: HTMLCanvasElement) {
         const context2d = canvas.getContext('2d');
@@ -19,18 +19,25 @@ export class Canvas {
         this.viewPort = [1, 1]; // TODO support different aspect ration
     }
 
+    get width() {
+        return this.canvas.width;
+    }
+    get height() {
+        return this.canvas.height;
+    }
+
     /**
      * input x and y are coords with center in the "center of canvas"
      * @param x 
      * @param y 
      * @returns x and y in absolute canvas dimension (x:0, y:0 is left upper corner)
      */
-    centeredToAbsoluteCoords(x: number, y: number) {
+    centeredToCanvasCoords(x: number, y: number) {
         return [(this.canvas.width / 2 + x), (this.canvas.height / 2 - y)];
     }
     
     putPixelToImageData(xOrig: number, yOrig: number, c: Color) {
-        const [x, y] = this.centeredToAbsoluteCoords(xOrig, yOrig);
+        const [x, y] = this.centeredToCanvasCoords(xOrig, yOrig);
         const i = (y * this.imageData.width + x) * 4;
         this.imageData.data[i+0] = c.r;
         this.imageData.data[i+1] = c.g;
@@ -39,7 +46,7 @@ export class Canvas {
     }
 
     getPixelFromImageData(xOrig: number, yOrig: number) {
-        const [x, y] = this.centeredToAbsoluteCoords(xOrig, yOrig);
+        const [x, y] = this.centeredToCanvasCoords(xOrig, yOrig);
         const i = (y * this.imageData.width + x) * 4;
         return new Color(
             this.imageData.data[i+0],
@@ -59,7 +66,7 @@ export class Canvas {
      * @param y 
      * @returns 
      */
-    absoluteCoordsToViewpointVector(x: number, y: number) {
+    centeredCoordsToViewpointVector(x: number, y: number): Vector {
         const point = new Point(
             x * this.viewPort[0] / this.canvas.width,
             y * this.viewPort[1] / this.canvas.height,

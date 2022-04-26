@@ -3,6 +3,7 @@ import { Color } from "./color";
 import { IS_CHECKERBOARD_ENABLED, FPS_MEASURE_COUNTER, FRAME_TIME, WEB_WORKERS } from "./consts";
 import { Point } from "./models/Point";
 import { Sphere } from "./models/Sphere";
+import { Vector } from "./models/Vector";
 import { ClassicRender } from "./renderers/classic";
 import { ParallelledRender } from "./renderers/parallelled/parallelled";
 import { RendererAbstract } from "./renderers/renderer.abstract";
@@ -62,14 +63,17 @@ const start = () => {
 
 
 
-    let renderer: RendererAbstract = new ClassicRender(canvas, IS_CHECKERBOARD_ENABLED);
-    // if (WEB_WORKERS > 0) {
-    //     renderer = new ParallelledRender(
-    //         IS_CHECKERBOARD_ENABLED,
-    //         WEB_WORKERS,
-    //         './workers/render-worker.js'
-    //     );
-    // }
+    let renderer: RendererAbstract;
+    if (WEB_WORKERS > 0) {
+        renderer = new ParallelledRender(
+            canvas,
+            './workers/render-worker.js',
+            WEB_WORKERS,
+            IS_CHECKERBOARD_ENABLED,
+        );
+    } else {
+        renderer = new ClassicRender(canvas, IS_CHECKERBOARD_ENABLED);
+    }
     
 
 	let startPeriod = performance.now();
@@ -77,7 +81,8 @@ const start = () => {
 	setInterval(() => {
 		updateCamera();
 		const startRender = performance.now();
-		renderer.render(CAMERA_POS, spheres);
+        const cameraVector = Vector.fromPoint(CAMERA_POS);
+		renderer.render(cameraVector, spheres);
 		const endRender = performance.now();
 		resetMovement();
 		

@@ -4,17 +4,18 @@ import { ClassicRender } from "../classic";
 import { paramsToArrayBuffer } from "../../utils/renderParams";
 import { Sphere } from "../../models/Sphere";
 import { Canvas } from "../../canvas";
+import { RendererAbstract } from "../renderer.abstract";
 
-export class ParallelledRender extends ClassicRender {
+export class ParallelledRender extends RendererAbstract {
 
     private workers: Worker[];
     private xChunkSize: number;
 
     constructor(
         canvas: Canvas,
-        checkerBoard = false,
+        workerPath: string,
         workersCount = 4,
-        workerPath: string
+        checkerBoard = false,
     ) {
         super(canvas, checkerBoard);
 
@@ -30,57 +31,55 @@ export class ParallelledRender extends ClassicRender {
         this.xChunkSize = Math.ceil((dimensions.xEnd - dimensions.xStart) / workers.length);
     }
 
-    public renderForWorker(cameraPos: Point, spheres: Sphere[]) {
-        super._render(cameraPos, spheres);
-    }
-
-
-    protected async _render(cameraPos: Point, spheres: Sphere[]): Promise<void> {
-        const cameraVector = Vector.fromPoint(cameraPos);
-	    const COs = spheres.map((sphere) => cameraVector.sub(Vector.fromPoint(sphere.center)));
-
+    protected async _render(cameraVector: Vector, spheres: Sphere[]): Promise<void> {
         const workersPromise = this._prepareWorkers();
 
-        // this.workers.forEach((worker, index) => {
-        //     // prepare slice of dimensions for render
-        //     const xStart = this.dimensions.xStart + index * this.xChunkSize;
-        //     let xEnd = xStart + this.xChunkSize;
-        //     if (xEnd > this.dimensions.xEnd) {
-        //         xEnd = this.dimensions.xEnd;
-        //     }
-        //     const renderParamsArrayBuffer = paramsToArrayBuffer({
-        //         dimensions: [xStart, xEnd,this.dimensions.yStart, this.dimensions.yEnd],
-        //         checkerboard: this.checkerBoard,
-        //         cameraPos,
-        //         spheres,
-        //     });
+        const dimensions = this.canvas.getCanvasDimensionsInCenteredCoords();
 
-        //     // and send it to worker
-        //     worker.postMessage(null, [renderParamsArrayBuffer]);
-        // });
+        this.workers.forEach((worker, index) => {
+            // prepare slice of dimensions for render
+            const xStart = dimensions.xStart + index * this.xChunkSize;
+            let xEnd = xStart + this.xChunkSize;
+            if (xEnd > dimensions.xEnd) {
+                xEnd = dimensions.xEnd;
+            }
+            const renderParamsArrayBuffer = paramsToArrayBuffer({
+                dimensions: [xStart, xEnd,dimensions.yStart, dimensions.yEnd],
+                checkerboard: this.checkerBoard,
+                cameraVector,
+                spheres,
+                canvasSize: [this.canvas.width, this.canvas.height],
+                viewPort: [this.canvas.viewPort[0], this.canvas.viewPort[1]]
+            });
 
-        await workersPromise;
+            // and send it to worker
+            worker.postMessage(renderParamsArrayBuffer, [renderParamsArrayBuffer]);
+        });
+
+        const results = await workersPromise;
+        console.log(results);
     }
 
-    protected _prepareWorkers(): Promise<void> {
+    protected _prepareWorkers(): Promise<ArrayBuffer[]> {
         
         let eventListener;
 
-        return new Promise<void>((resolve) => {
-            let finishedWorkers = 0;
+        return new Promise<ArrayBuffer[]>((resolve) => {
+            let results: ArrayBuffer[] = [];
             eventListener = () => {
-                finishedWorkers++;
-                if (finishedWorkers === this.workers.length) {
-                    resolve();
+                if (results.length === this.workers.length) {
+                    resolve(results);
                 }
             }
             this.workers.forEach((worker) => {
                 worker.addEventListener('message', eventListener);
             });
-        }).then(() => {
+        }).then((results) => {
             this.workers.forEach((worker) => {
                 worker.removeEventListener('message', eventListener);
             });
+
+            return results;
         });
         
     }

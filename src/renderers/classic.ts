@@ -3,8 +3,7 @@ import { RendererAbstract } from "./renderer.abstract";
 import { Point } from "../models/Point";
 
 export class ClassicRender extends RendererAbstract {
-    protected async _render(cameraPos: Point, spheres: any): Promise<void> {
-        const cameraVector = Vector.fromPoint(cameraPos);
+    protected async _render(cameraVector: Vector, spheres: any): Promise<void> {
 	    const COs = spheres.map((sphere) => cameraVector.sub(Vector.fromPoint(sphere.center)));
         const dimensions = this.canvas.getCanvasDimensionsInCenteredCoords();
 
