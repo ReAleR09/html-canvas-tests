@@ -27,7 +27,7 @@ export function traceRay(spheres, COs, viewportVector, t_min, t_max) {
 
 const bgPos = [Infinity, Infinity];
 
-export function intersectRaySphere(CO, D, r) {
+function intersectRaySphere(CO, D, r) {
 	let a = D.length() * 2;
 	let b = 2 * CO.dot(D);
 	let c = CO.length() - r*r;

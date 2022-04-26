@@ -1,44 +1,79 @@
 import { Color } from './color';
 import { Point } from './models/Point';
+import { Vector } from './models/Vector';
+import { CanvasDimensions } from './types/CanvasDivensions';
 
-export var canvas, imD, ctx, viewport; // TODO NO GLOBAL VARS!
+export class Canvas {
+    
+    protected context2d: CanvasRenderingContext2D;
+    protected imageData: ImageData;
+    protected viewPort: [W: number, H: number];
 
-export function init(canvasId) {
-	canvas = document.getElementById(canvasId);
-	ctx = canvas.getContext ('2d');
-	imD = ctx.createImageData (canvas.width, canvas.height);
-	viewport = {W: 1, H: 1}
-	return canvas;
-}
+    constructor(protected canvas: HTMLCanvasElement) {
+        const context2d = canvas.getContext('2d');
+        if (context2d === null) {
+            throw new Error('Failed to get 2d context');
+        }
+        this.context2d = context2d;
+        this.imageData = context2d.createImageData(canvas.width, canvas.height);
+        this.viewPort = [1, 1]; // TODO support different aspect ration
+    }
 
-export function transXY(x, y) {
-	return [canvas.width/2+x, canvas.height/2-y];
-}
+    /**
+     * input x and y are coords with center in the "center of canvas"
+     * @param x 
+     * @param y 
+     * @returns x and y in absolute canvas dimension (x:0, y:0 is left upper corner)
+     */
+    centeredToAbsoluteCoords(x: number, y: number) {
+        return [(this.canvas.width / 2 + x), (this.canvas.height / 2 - y)];
+    }
+    
+    putPixelToImageData(xOrig: number, yOrig: number, c: Color) {
+        const [x, y] = this.centeredToAbsoluteCoords(xOrig, yOrig);
+        const i = (y * this.imageData.width + x) * 4;
+        this.imageData.data[i+0] = c.r;
+        this.imageData.data[i+1] = c.g;
+        this.imageData.data[i+2] = c.b;
+        this.imageData.data[i+3] = 255; // alpha
+    }
 
-export function putPixel(xOrig, yOrig, c) {
-	const [x, y] = transXY(xOrig, yOrig);
-	const i = (y * imD.width + x) * 4;
-	imD.data[i+0] = c.r;
-	imD.data[i+1] = c.g;
-	imD.data[i+2] = c.b;
-	imD.data[i+3] = 255; // alpha
-}
+    getPixelFromImageData(xOrig: number, yOrig: number) {
+        const [x, y] = this.centeredToAbsoluteCoords(xOrig, yOrig);
+        const i = (y * this.imageData.width + x) * 4;
+        return new Color(
+            this.imageData.data[i+0],
+            this.imageData.data[i+1],
+            this.imageData.data[i+2]
+        );
+    }
 
-export function getPixel(xOrig, yOrig) {
-	const [x, y] = transXY(xOrig, yOrig);
-	const i = (y * imD.width + x) * 4;
-	return new Color(
-		imD.data[i+0],
-		imD.data[i+1],
-		imD.data[i+2]
-	);
-}
+    flushImageDataToCanvas() {
+        this.context2d.putImageData(this.imageData, 0, 0);
+    }
 
-export function updateCanvas() {
-	ctx.putImageData(imD, 0, 0);
-}
+    // TODO clarify decription
+    /**
+     * convert absolute coords to a vector to "projected viewport" i guess??
+     * @param x 
+     * @param y 
+     * @returns 
+     */
+    absoluteCoordsToViewpointVector(x: number, y: number) {
+        const point = new Point(
+            x * this.viewPort[0] / this.canvas.width,
+            y * this.viewPort[1] / this.canvas.height,
+            1 // TODO clarify this
+        );
+        return  Vector.fromPoint(point);
+    }
 
-// canvas coordinates to viewpoint coordinates
-export function c2vp(x, y) {
-	return new Point(x * viewport.W / canvas.width, y * viewport.H / canvas.height, 1);
+    getCanvasDimensionsInCenteredCoords(): CanvasDimensions {
+        return {
+            xStart: -this.canvas.width/2,
+            xEnd: this.canvas.width/2,
+            yStart: -this.canvas.height/2,
+            yEnd: this.canvas.height/2,
+        };
+    }
 }

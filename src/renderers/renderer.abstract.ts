@@ -1,4 +1,5 @@
-import { c2vp, putPixel, updateCanvas } from "../canvas";
+import { Canvas } from "../canvas";
+import { Color } from "../color";
 import { Point } from "../models/Point";
 import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";
@@ -11,31 +12,39 @@ export abstract class RendererAbstract {
     protected isEvenDraw = false;
 
     constructor(
-        protected dimensions: CanvasDimensions,
-        protected checkerBoard = false
+        protected canvas: Canvas,
+        protected checkerBoard = false,
     ) {
         this.yStep = this.checkerBoard ? 2 : 1;
     }
 
+    /**
+     * Inheritor is responsible for calculating all pixel data and putting
+     * it to canvas'es image data
+     * @param cameraPos 
+     * @param spheres 
+     */
     protected abstract _render(cameraPos: Point, spheres: Sphere[]): Promise<void>;
 
     protected _getYstart() {
+        const dimensions = this.canvas.getCanvasDimensionsInCenteredCoords();
         return this.checkerBoard
-            ? this.dimensions.yStart + (this.isEvenDraw ? 1 : 0)
-            : this.dimensions.yStart;
+            ? dimensions.yStart + (this.isEvenDraw ? 1 : 0)
+            : dimensions.yStart;
     }
 
     public render(cameraPos: Point, spheres: Sphere[]): void {
         this._render(cameraPos, spheres);
         this.isEvenDraw = !this.isEvenDraw;
-        updateCanvas();
+        this.updateCanvas();
     }
 
-    static calcAndPaintPixel(x: number, y: number, spheres: Sphere[], COs: Vector[]) {
-        const D = c2vp(x, y);
-        const viewportVector = Vector.fromPoint(D);
-        const color = traceRay(spheres, COs, viewportVector, 1, Infinity);
-        
-        putPixel(x, y, color);
+    protected updateCanvas() {
+        this.canvas.flushImageDataToCanvas();
+    }
+
+    protected calcPixel(x: number, y: number, spheres: Sphere[], COs: Vector[]): Color {
+        const viewportVector = this.canvas.absoluteCoordsToViewpointVector(x, y);
+        return traceRay(spheres, COs, viewportVector, 1, Infinity);
     }
 }

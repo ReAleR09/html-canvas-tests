@@ -1,10 +1,10 @@
-import { canvas, init,} from "./canvas";
+import { Canvas } from "./canvas";
 import { Color } from "./color";
 import { IS_CHECKERBOARD_ENABLED, FPS_MEASURE_COUNTER, FRAME_TIME, WEB_WORKERS } from "./consts";
 import { Point } from "./models/Point";
 import { Sphere } from "./models/Sphere";
 import { ClassicRender } from "./renderers/classic";
-import { ParallelledRender } from "./renderers/parallelled";
+import { ParallelledRender } from "./renderers/parallelled/parallelled";
 import { RendererAbstract } from "./renderers/renderer.abstract";
 
 const spheres = [
@@ -33,7 +33,8 @@ const updateCamera = () => {
 
 
 const start = () => {
-	init('canvas');
+    const canvasEl = document.getElementById('canvas') as HTMLCanvasElement;
+    const canvas = new Canvas(canvasEl);
     document.addEventListener('keydown', function (event) {
       switch(event.code) {
         case 'KeyW':
@@ -59,24 +60,16 @@ const start = () => {
       }
     });
 
-    const dimensions = {
-        xStart: -canvas.width/2,
-        xEnd: canvas.width/2,
-        yStart: -canvas.height/2,
-        yEnd: canvas.height/2,
-    }
 
-    let renderer: RendererAbstract;
-    if (WEB_WORKERS > 0) {
-        renderer = new ParallelledRender(
-            dimensions,
-            IS_CHECKERBOARD_ENABLED,
-            WEB_WORKERS,
-            './workers/render-worker.js'
-        );
-    } else {
-        renderer = new ClassicRender(dimensions, IS_CHECKERBOARD_ENABLED);
-    }
+
+    let renderer: RendererAbstract = new ClassicRender(canvas, IS_CHECKERBOARD_ENABLED);
+    // if (WEB_WORKERS > 0) {
+    //     renderer = new ParallelledRender(
+    //         IS_CHECKERBOARD_ENABLED,
+    //         WEB_WORKERS,
+    //         './workers/render-worker.js'
+    //     );
+    // }
     
 
 	let startPeriod = performance.now();

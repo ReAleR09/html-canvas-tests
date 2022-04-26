@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const config = {
   entry: {
     main: './src/index.ts',
-    worker: './src/workers/render-worker.js',
+    worker: './src/renderers/parallelled/render-worker.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
