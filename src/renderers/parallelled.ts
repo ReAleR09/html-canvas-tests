@@ -1,6 +1,7 @@
 import { Vector } from "../models/Vector";
 import { CanvasDimensions, RendererAbstract } from "./renderer.abstract";
 import { Point } from "../models/Point";
+import { RenderDataUnpacked } from "../types/RenderMessageData";
 
 export class ParallelledRender extends RendererAbstract {
 
@@ -32,22 +33,23 @@ export class ParallelledRender extends RendererAbstract {
         const workersPromise = this._prepareWorkers();
 
         this.workers.forEach((worker, index) => {
+            let message: RenderDataUnpacked;
             // prepare 'render chunk' function for every worker
             const xStart = this.dimensions.xStart + index * this.xChunkSize;
             let xEnd = xStart + this.xChunkSize;
             if (xEnd > this.dimensions.xEnd) {
                 xEnd = this.dimensions.xEnd;
             }
-            const render = () => {
+
                 for (let x = xStart; x < xEnd; x++) {
                     const yStart = this._getYstart();
                     for (let y = yStart; y < this.dimensions.yEnd; y+=this.yStep) {
                         ParallelledRender.calcAndPaintPixel(x, y, spheres, COs);
                     }
                 }
-            };
+
             // and send it to worker
-            worker.postMessage({render});
+            worker.postMessage(message);
         });
 
         await workersPromise;

@@ -3,13 +3,7 @@ import { Point } from "../models/Point";
 import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";
 import { traceRay } from "../raytracing";
-
-export interface CanvasDimensions {
-    xStart: number;
-    xEnd: number;
-    yStart: number;
-    yEnd: number;
-}
+import { CanvasDimensions } from "../types/CanvasDivensions";
 
 export abstract class RendererAbstract {
 

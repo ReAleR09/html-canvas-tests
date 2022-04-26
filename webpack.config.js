@@ -4,15 +4,15 @@ const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const config = {
-  entry: './src/index.ts',
+  entry: {
+    main: './src/index.ts',
+    worker: './src/workers/render-worker.js',
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: '[name].js'
   },
   plugins: [
-    new CopyPlugin({
-        patterns: [{ from: './src/workers', to: 'workers' }],
-    }),
     new HtmlWebpackPlugin({
         template: './src/index.html',   
         title: 'GRAPHON',
