@@ -1,6 +1,7 @@
+require('./utils/setImmediatePoly');
 import { Canvas } from "./canvas";
 import { Color } from "./color";
-import { IS_CHECKERBOARD_ENABLED, FPS_MEASURE_COUNTER, REFRESH_RATE, WEB_WORKERS } from "./consts";
+import { IS_CHECKERBOARD_ENABLED, WEB_WORKERS, FPS_MEASURE_COUNTER } from "./consts";
 import { Point } from "./models/Point";
 import { Sphere } from "./models/Sphere";
 import { Vector } from "./models/Vector";
@@ -33,9 +34,10 @@ const updateCamera = () => {
 }
 
 
-const start = () => {
+const start = async () => {
     const canvasEl = document.getElementById('canvas') as HTMLCanvasElement;
     const canvas = new Canvas(canvasEl);
+    const canvasContext = canvasEl.getContext('2d') as CanvasRenderingContext2D;
     document.addEventListener('keydown', function (event) {
       switch(event.code) {
         case 'KeyW':
@@ -71,14 +73,43 @@ const start = () => {
     } else {
         renderer = new ClassicRender(canvas, IS_CHECKERBOARD_ENABLED);
     }
-    
-	setInterval(async () => {
-		updateCamera();
+
+    let secondsPassed;
+    let oldTimeStamp;
+    let fpsMeasures: number[] = [];
+    let fps = 0;
+    const drawLoop = async (timeStamp): Promise<void> => {
+        // Calculate the number of seconds passed since the last frame
+        secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+        oldTimeStamp = timeStamp;
+        
+        updateCamera();
         const cameraVector = Vector.fromPoint(CAMERA_POS);
+        const startFrame = performance.now();
 		await renderer.render(cameraVector, spheres);
+        const frameTime = performance.now() - startFrame;
+
+        // re-calculate fps
+        fpsMeasures.push(Math.round(1 / secondsPassed));
+        if (fpsMeasures.length === FPS_MEASURE_COUNTER) {
+            fps = Math.round(fpsMeasures.reduce((prev, curr) => prev + curr, 0) / FPS_MEASURE_COUNTER)
+            fpsMeasures = [];
+            console.log(`FPS: ${fps}, frame time: ${frameTime.toFixed(2)}ms`);
+        }
+        // paint fps over canvas 
+        // canvasContext.fillStyle = 'white';
+        // canvasContext.fillRect(0, 0, 50, 12);
+        // canvasContext.font = '12px Arial';
+        // canvasContext.fillStyle = 'black';
+        // canvasContext.fillText("FPS: " + fps, 4, 10);
+        
+
 		resetMovement();
-		
-	}, REFRESH_RATE);
+        window.requestAnimationFrame(drawLoop);
+    }
+
+    window.requestAnimationFrame(drawLoop);
+
 }
 
 start();

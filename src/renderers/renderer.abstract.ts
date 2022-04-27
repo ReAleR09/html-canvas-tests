@@ -34,9 +34,10 @@ export abstract class RendererAbstract {
     }
 
     public async render(cameraVector: Vector, spheres: Sphere[]): Promise<void> {
-        await this._render(cameraVector, spheres);
+        const promise = this._render(cameraVector, spheres);
         this.isEvenDraw = !this.isEvenDraw;
         this.updateCanvas();
+        return promise;
     }
 
     protected updateCanvas() {

@@ -3,7 +3,7 @@ import { paramsToArrayBuffer } from "../utils/renderParams";
 import { Sphere } from "../models/Sphere";
 import { Canvas } from "../canvas";
 import { RendererAbstract } from "./renderer.abstract";
-import { RenderResults } from "../utils/renderResults";
+import { WorkerOutputMessage } from "../types/render-worker";
 
 export class ParallelledRender extends RendererAbstract {
 
@@ -26,7 +26,7 @@ export class ParallelledRender extends RendererAbstract {
 
         const dimensions = canvas.getCanvasDimensionsInCenteredCoords();
 
-        this.yChunkSize = Math.ceil((dimensions.xEnd - dimensions.xStart) / workers.length);
+        this.yChunkSize = Math.ceil((dimensions.yEnd - dimensions.yStart) / workers.length);
     }
 
     protected async _render(cameraVector: Vector, spheres: Sphere[]): Promise<void> {
@@ -35,11 +35,10 @@ export class ParallelledRender extends RendererAbstract {
         const dimensions = this.canvas.getCanvasDimensionsInCenteredCoords();
 
         this.workers.forEach((worker, index) => {
-            // prepare slice of dimensions for render
-            const yStart = dimensions.yStart + index * this.yChunkSize;
-            let yEnd = yStart + this.yChunkSize;
-            if (yEnd > dimensions.yEnd) {
-                yEnd = dimensions.yEnd;
+            const yEnd = dimensions.yEnd - index * this.yChunkSize;
+            let yStart = yEnd - this.yChunkSize;
+            if (yStart < dimensions.yStart) {
+                yStart = dimensions.yStart
             }
 
             const renderParamsArrayBuffer = paramsToArrayBuffer({
@@ -52,29 +51,38 @@ export class ParallelledRender extends RendererAbstract {
             });
 
             // and send it to worker
-            worker.postMessage(renderParamsArrayBuffer, [renderParamsArrayBuffer]);
+            worker.postMessage({
+                buffer: renderParamsArrayBuffer,
+                id: index,
+            }, [renderParamsArrayBuffer]);
         });
 
-        const calcData = await workersPromise;
-        console.log('start' + performance.now());
-        calcData.forEach((arrayBuffer) => {
-            const renderResults = new RenderResults(arrayBuffer);
-            for (const {x, y, color} of renderResults) {
-                this.canvas.putPixelToImageData(x, y, color);
+        return workersPromise.then((calcData) => {
+            const finalArrSize = calcData.reduce((prev: number, curr: Uint8ClampedArray) => {
+                return prev + curr.byteLength;
+            }, 0);
+            const finalArr = new Uint8ClampedArray(finalArrSize);
+            let OFFSET = 0;
+            for (let i = 0; i < calcData.length; i++) {
+                finalArr.set(calcData[i], OFFSET);
+                OFFSET += calcData[i].byteLength;
             }
+            const imageData = new ImageData(finalArr, this.canvas.width, this.canvas.height);
+            this.canvas.setImageData(imageData);
         });
-        console.log('end' + performance.now());
     }
 
-    protected _prepareWorkers(): Promise<ArrayBuffer[]> {
+    protected _prepareWorkers(): Promise<Uint8ClampedArray[]> {
         
         let eventListener;
 
-        return new Promise<ArrayBuffer[]>((resolve) => {
-            let results: ArrayBuffer[] = [];
-            eventListener = (event: MessageEvent) => {
-                results.push(event.data);
-                if (results.length === this.workers.length) {
+        return new Promise<Uint8ClampedArray[]>((resolve) => {
+            let counter = 0;
+            let results: Uint8ClampedArray[] = [];
+            eventListener = ({data: {buffer, id}}: MessageEvent<WorkerOutputMessage>) => {
+                results[id] = new Uint8ClampedArray(buffer);
+                counter++;
+                if (counter === this.workers.length) {
                     resolve(results);
                 }
             }

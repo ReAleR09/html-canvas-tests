@@ -16,7 +16,13 @@ export class Canvas {
         }
         this.context2d = context2d;
         this.imageData = context2d.createImageData(canvas.width, canvas.height);
-        this.viewPort = [1, 1]; // TODO support different aspect ration
+        let W = 1, H = 1;
+        if (canvas.width > canvas.height) {
+            W = canvas.width / canvas.height;
+        } else if (canvas.width < canvas.height) {
+            H = canvas.height / canvas.width;
+        }
+        this.viewPort = [W, H];
     }
 
     get width() {
@@ -34,6 +40,10 @@ export class Canvas {
      */
     centeredToCanvasCoords(x: number, y: number) {
         return [(this.canvas.width / 2 + x), (this.canvas.height / 2 - y - 1)];
+    }
+    
+    setImageData(imageData: ImageData) {
+        this.imageData = imageData;
     }
     
     putPixelToImageData(xOrig: number, yOrig: number, c: Color) {
