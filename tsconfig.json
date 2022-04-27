@@ -5,9 +5,9 @@
         "strict": true,
         "noImplicitReturns": true,
         "noImplicitAny": false, // TODO get back to true later
-        "module": "es6",
+        "module": "es2020",
         "moduleResolution": "node",
-        "target": "es6",
+        "target": "es2020",
         "allowJs": true,
     },
     "include": [

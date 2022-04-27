@@ -1,6 +1,6 @@
 import { Canvas } from "./canvas";
 import { Color } from "./color";
-import { IS_CHECKERBOARD_ENABLED, FPS_MEASURE_COUNTER, FRAME_TIME, WEB_WORKERS } from "./consts";
+import { IS_CHECKERBOARD_ENABLED, FPS_MEASURE_COUNTER, REFRESH_RATE, WEB_WORKERS } from "./consts";
 import { Point } from "./models/Point";
 import { Sphere } from "./models/Sphere";
 import { Vector } from "./models/Vector";
@@ -61,13 +61,10 @@ const start = () => {
       }
     });
 
-
-
     let renderer: RendererAbstract;
     if (WEB_WORKERS > 0) {
         renderer = new ParallelledRender(
             canvas,
-            './workers/render-worker.js',
             WEB_WORKERS,
             IS_CHECKERBOARD_ENABLED,
         );
@@ -75,29 +72,13 @@ const start = () => {
         renderer = new ClassicRender(canvas, IS_CHECKERBOARD_ENABLED);
     }
     
-
-	let startPeriod = performance.now();
-	let framesDrawn = 0;
 	setInterval(async () => {
 		updateCamera();
-		const startRender = performance.now();
-    const cameraVector = Vector.fromPoint(CAMERA_POS);
+        const cameraVector = Vector.fromPoint(CAMERA_POS);
 		await renderer.render(cameraVector, spheres);
-		const endRender = performance.now();
 		resetMovement();
 		
-		framesDrawn++;
-		// measure and output FPS every n frames
-		if (framesDrawn === FPS_MEASURE_COUNTER) {
-			const now = performance.now();
-			const fps = (framesDrawn / ((now - startPeriod)/1000)).toFixed(2);
-			console.log(`FPS: ${fps}, LAST FRAMETIME: ${(endRender - startRender).toFixed(2)}ms`);
-			// reset
-			startPeriod = now;
-			framesDrawn = 0;
-		}
-		
-	}, FRAME_TIME);
+	}, REFRESH_RATE);
 }
 
 start();

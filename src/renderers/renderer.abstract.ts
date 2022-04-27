@@ -33,8 +33,8 @@ export abstract class RendererAbstract {
             : dimensions.yStart;
     }
 
-    public render(cameraVector: Vector, spheres: Sphere[]): void {
-        this._render(cameraVector, spheres);
+    public async render(cameraVector: Vector, spheres: Sphere[]): Promise<void> {
+        await this._render(cameraVector, spheres);
         this.isEvenDraw = !this.isEvenDraw;
         this.updateCanvas();
     }

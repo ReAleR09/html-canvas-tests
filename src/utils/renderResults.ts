@@ -1,5 +1,11 @@
 import { Color } from "../color";
 
+interface RenderResult {
+    x: number;
+    y: number;
+    color: Color;
+}
+
 export class RenderResults {
     public arrayBuffer: ArrayBuffer;
     private dataView: DataView;
@@ -42,19 +48,12 @@ export class RenderResults {
         return this.getIterator();
     }
 
-
-    private getIterator() {
+    private getIterator(): Iterator<RenderResult> {
         let OFFSET = 0;
         const dataView = this.dataView;
 
         return {
             next() {
-                if (OFFSET >= ArrayBuffer.length) {
-                    return {
-                        done: true
-                    };
-                }
-
                 const x = dataView.getInt16(OFFSET);
                 const y = dataView.getInt16(OFFSET+2);
 

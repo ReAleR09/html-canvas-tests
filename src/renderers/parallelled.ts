@@ -1,19 +1,17 @@
 import { Vector } from "../models/Vector";
-import { Point } from "../models/Point";
-import { ClassicRender } from "./classic";
 import { paramsToArrayBuffer } from "../utils/renderParams";
 import { Sphere } from "../models/Sphere";
 import { Canvas } from "../canvas";
 import { RendererAbstract } from "./renderer.abstract";
+import { RenderResults } from "../utils/renderResults";
 
 export class ParallelledRender extends RendererAbstract {
 
     private workers: Worker[];
-    private xChunkSize: number;
+    private yChunkSize: number;
 
     constructor(
         canvas: Canvas,
-        workerPath: string,
         workersCount = 4,
         checkerBoard = false,
     ) {
@@ -21,14 +19,14 @@ export class ParallelledRender extends RendererAbstract {
 
         const workers: Worker[] = [];
         for (let i = 0; i < workersCount; i++) {
-            const worker = new Worker(workerPath);
+            const worker = new Worker(new URL('../workers/render-worker.ts', import.meta.url));
             workers.push(worker);
         }
         this.workers = workers;
 
         const dimensions = canvas.getCanvasDimensionsInCenteredCoords();
 
-        this.xChunkSize = Math.ceil((dimensions.xEnd - dimensions.xStart) / workers.length);
+        this.yChunkSize = Math.ceil((dimensions.xEnd - dimensions.xStart) / workers.length);
     }
 
     protected async _render(cameraVector: Vector, spheres: Sphere[]): Promise<void> {
@@ -38,13 +36,14 @@ export class ParallelledRender extends RendererAbstract {
 
         this.workers.forEach((worker, index) => {
             // prepare slice of dimensions for render
-            const xStart = dimensions.xStart + index * this.xChunkSize;
-            let xEnd = xStart + this.xChunkSize;
-            if (xEnd > dimensions.xEnd) {
-                xEnd = dimensions.xEnd;
+            const yStart = dimensions.yStart + index * this.yChunkSize;
+            let yEnd = yStart + this.yChunkSize;
+            if (yEnd > dimensions.yEnd) {
+                yEnd = dimensions.yEnd;
             }
+
             const renderParamsArrayBuffer = paramsToArrayBuffer({
-                dimensions: [xStart, xEnd,dimensions.yStart, dimensions.yEnd],
+                dimensions: [dimensions.xStart, dimensions.xEnd, yStart, yEnd],
                 checkerboard: this.checkerBoard,
                 cameraVector,
                 spheres,
@@ -56,8 +55,15 @@ export class ParallelledRender extends RendererAbstract {
             worker.postMessage(renderParamsArrayBuffer, [renderParamsArrayBuffer]);
         });
 
-        const results = await workersPromise;
-        console.log(results);
+        const calcData = await workersPromise;
+        console.log('start' + performance.now());
+        calcData.forEach((arrayBuffer) => {
+            const renderResults = new RenderResults(arrayBuffer);
+            for (const {x, y, color} of renderResults) {
+                this.canvas.putPixelToImageData(x, y, color);
+            }
+        });
+        console.log('end' + performance.now());
     }
 
     protected _prepareWorkers(): Promise<ArrayBuffer[]> {

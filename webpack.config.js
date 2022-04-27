@@ -4,13 +4,10 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const config = {
-  entry: {
-    main: './src/index.ts',
-    "./workers/render-worker": './src/workers/render-worker.ts',
-  },
+  entry: './src/index.ts',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js'
+    filename: 'bundle.js'
   },
   plugins: [
     new HtmlWebpackPlugin({

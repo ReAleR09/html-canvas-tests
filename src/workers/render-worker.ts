@@ -28,11 +28,9 @@ const calcPixel = (viewpointVector: Vector, spheres: Sphere[], COs: Vector[]): C
 }
 
 self.addEventListener('message', (event: MessageEvent) => {
+    
     const arrayBuffer = event.data as ArrayBuffer;
-    // TODO somehow WEBPACK?! sends messages here so i have to turn them down?!1
-    if (!(arrayBuffer instanceof ArrayBuffer)) {
-        return;
-    }
+
     const {
         cameraVector,
         dimensions: [xStart, xEnd, yStart, yEnd],
@@ -41,6 +39,7 @@ self.addEventListener('message', (event: MessageEvent) => {
         canvasSize,
         viewPort
     } = arrayBufferToParams(arrayBuffer);
+
     const COs = spheres.map((sphere) => cameraVector.sub(Vector.fromPoint(sphere.center)));
     
     const renderResults = new RenderResults(xEnd - xStart, yEnd - yStart);

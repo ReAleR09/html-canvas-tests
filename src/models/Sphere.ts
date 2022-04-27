@@ -26,7 +26,7 @@ export class Sphere {
         OFFSET += 4;
 
         this.color.asArray().forEach((intVal) => {
-            dataView.setInt8(OFFSET, intVal);
+            dataView.setUint8(OFFSET, intVal);
             OFFSET += 1;
         });
 
@@ -49,9 +49,9 @@ export class Sphere {
         OFFSET += 4;
 
         const color = new Color(
-            dataView.getInt8(OFFSET),
-            dataView.getInt8(OFFSET+1),
-            dataView.getInt8(OFFSET+2),
+            dataView.getUint8(OFFSET),
+            dataView.getUint8(OFFSET+1),
+            dataView.getUint8(OFFSET+2),
         );
         OFFSET+=3;
 
