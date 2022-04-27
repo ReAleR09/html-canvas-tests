@@ -15,4 +15,8 @@ export class Color {
 	invert(): Color  {
 		return new Color(255 - this.r, 255 - this.g, 255 - this.b)
 	}
+
+	asArray() {
+		return [this.r, this.g, this.b];
+	}
 }

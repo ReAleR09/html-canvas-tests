@@ -33,7 +33,7 @@ export class Canvas {
      * @returns x and y in absolute canvas dimension (x:0, y:0 is left upper corner)
      */
     centeredToCanvasCoords(x: number, y: number) {
-        return [(this.canvas.width / 2 + x), (this.canvas.height / 2 - y)];
+        return [(this.canvas.width / 2 + x), (this.canvas.height / 2 - y - 1)];
     }
     
     putPixelToImageData(xOrig: number, yOrig: number, c: Color) {

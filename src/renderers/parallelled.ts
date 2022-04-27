@@ -1,10 +1,10 @@
-import { Vector } from "../../models/Vector";
-import { Point } from "../../models/Point";
-import { ClassicRender } from "../classic";
-import { paramsToArrayBuffer } from "../../utils/renderParams";
-import { Sphere } from "../../models/Sphere";
-import { Canvas } from "../../canvas";
-import { RendererAbstract } from "../renderer.abstract";
+import { Vector } from "../models/Vector";
+import { Point } from "../models/Point";
+import { ClassicRender } from "./classic";
+import { paramsToArrayBuffer } from "../utils/renderParams";
+import { Sphere } from "../models/Sphere";
+import { Canvas } from "../canvas";
+import { RendererAbstract } from "./renderer.abstract";
 
 export class ParallelledRender extends RendererAbstract {
 
@@ -66,7 +66,8 @@ export class ParallelledRender extends RendererAbstract {
 
         return new Promise<ArrayBuffer[]>((resolve) => {
             let results: ArrayBuffer[] = [];
-            eventListener = () => {
+            eventListener = (event: MessageEvent) => {
+                results.push(event.data);
                 if (results.length === this.workers.length) {
                     resolve(results);
                 }

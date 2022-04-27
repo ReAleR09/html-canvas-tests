@@ -1,12 +1,12 @@
-const webpack = require('webpack');
+// const webpack = require('webpack');
 const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
+// const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const config = {
   entry: {
     main: './src/index.ts',
-    worker: './src/renderers/parallelled/render-worker.ts',
+    "./workers/render-worker": './src/workers/render-worker.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

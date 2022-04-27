@@ -5,7 +5,7 @@ import { Point } from "./models/Point";
 import { Sphere } from "./models/Sphere";
 import { Vector } from "./models/Vector";
 import { ClassicRender } from "./renderers/classic";
-import { ParallelledRender } from "./renderers/parallelled/parallelled";
+import { ParallelledRender } from "./renderers/parallelled";
 import { RendererAbstract } from "./renderers/renderer.abstract";
 
 const spheres = [
@@ -78,11 +78,11 @@ const start = () => {
 
 	let startPeriod = performance.now();
 	let framesDrawn = 0;
-	setInterval(() => {
+	setInterval(async () => {
 		updateCamera();
 		const startRender = performance.now();
-        const cameraVector = Vector.fromPoint(CAMERA_POS);
-		renderer.render(cameraVector, spheres);
+    const cameraVector = Vector.fromPoint(CAMERA_POS);
+		await renderer.render(cameraVector, spheres);
 		const endRender = performance.now();
 		resetMovement();
 		

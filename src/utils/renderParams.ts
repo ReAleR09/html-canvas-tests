@@ -7,54 +7,47 @@ type CanvasSize = [x: number, y: number];
 type ViewPort = [h: number, v: number];
 
 export interface RenderData {
-    checkerboard: boolean, // 1 byte
-    dimensions: CanvasDimensions, // TODO REWRITE WITH Int16Array, meanwhile 4*4 bytes = 16
+    checkerboard: boolean, // 1 byte = 1
+    dimensions: CanvasDimensions, // 4 * 2 bytes = 8
+    canvasSize: CanvasSize, // 2*2 bytes = 4
     cameraVector: Vector, // 3*4 bytes = 12
-    canvasSize: CanvasSize, // 2*4 bytes = 8
     viewPort: ViewPort, // 2*4 bytes = 8
-    spheres: Array<Sphere>, // offset 45 bytes to this point
+    spheres: Array<Sphere>, // 19 per Sphere
 }
 
 const FLOAT_BYTES = 4;
 const INT_BYTES = 2;
 
-// TODO shit's hecked up, apparently you can't offset an value
-// see https://stackoverflow.com/questions/15417310/why-typed-array-constructors-require-offset-to-be-multiple-of-underlying-type-si
+// DataView is used everuwhere because see:
+// https://stackoverflow.com/questions/15417310/why-typed-array-constructors-require-offset-to-be-multiple-of-underlying-type-si
 export const paramsToArrayBuffer = (data: RenderData): ArrayBuffer => {
     const arrayBufferSize = 
-        // 1 isCheckerBoard + 4 int canvas dimensions + 3 float point camera pos
-        1 + 4 * INT_BYTES + 3 * FLOAT_BYTES +
+        // 1 isCheckerBoard + 4 int canvas dimensions + 2 int canv size + 3 float point camera pos + 2 float viewport
+        1 + 4 * INT_BYTES + 2 * INT_BYTES + 3 * FLOAT_BYTES + 2 * FLOAT_BYTES +
         data.spheres.length * Sphere.BYTE_SIZE;
     const arrayBuffer = new ArrayBuffer(arrayBufferSize);
     let OFFSET = 0;
-    // write bool isCheckerboard
-    const intArray = new Int8Array(arrayBuffer, OFFSET, 1);
-    intArray[0] = data.checkerboard ? 1 : 0;
-    OFFSET += intArray.byteLength;
-    // write four 2byte ints dimensions
-    
-    const int16Array = new Int16Array(arrayBuffer, 1, 4);
-    for(let i = 0; i < 4; i++) {
-        int16Array[i] = data.dimensions[i];
-    }
-    OFFSET += int16Array.byteLength;
+    const dataView = new DataView(arrayBuffer);
 
-    // we will write 7 4-byte floats below
-    const floatArray = new Float32Array(arrayBuffer, OFFSET, 7);
-    // cameraVector
-    floatArray[1] = data.cameraVector.x;
-    floatArray[2] = data.cameraVector.y;
-    floatArray[3] = data.cameraVector.z;
-    // canvasSize
-    floatArray[4] = data.canvasSize[0];
-    floatArray[5] = data.canvasSize[1];
-    // viewPort
-    floatArray[6] = data.viewPort[0];
-    floatArray[7] = data.viewPort[1];    
-    OFFSET += floatArray.byteLength;
+    // write bool isCheckerboard
+    dataView.setInt8(OFFSET, (data.checkerboard ? 1 : 0));
+    OFFSET += 1;
+
+    // write four 2byte ints dimensions and two 2byte ints canvasSize
+    [...data.dimensions, ...data.canvasSize].forEach((intVal) => {
+        dataView.setInt16(OFFSET, intVal);
+        OFFSET += 2;
+    });
+
+    // we will write 5 4-byte floats below
+    [...data.cameraVector.asArray(), ...data.viewPort].forEach((floatVal) => {
+        dataView.setFloat32(OFFSET, floatVal);
+        OFFSET += 4;
+    });
 
     for (let i = 0; i < data.spheres.length; i++) {
-        const bytesWritten = data.spheres[i].writeToArrayBuffer(arrayBuffer, OFFSET);
+        const sphereView = new DataView(arrayBuffer, OFFSET, Sphere.BYTE_SIZE);
+        const bytesWritten = data.spheres[i].writeToDataView(sphereView);
         OFFSET += bytesWritten;
     }
 
@@ -63,40 +56,42 @@ export const paramsToArrayBuffer = (data: RenderData): ArrayBuffer => {
 
 export const arrayBufferToParams = (arrayBuffer: ArrayBuffer): RenderData => {
     let OFFSET = 0;
+    const dataView = new DataView(arrayBuffer);
 
     // read bool isCheckerboard
-    const intArray = new Int8Array(arrayBuffer, OFFSET, 1);
-    const checkerboard = (intArray[0] > 0);
-    OFFSET += intArray.byteLength;
+    const checkerboard = dataView.getInt8(OFFSET) === 1;
+    OFFSET += 1;
 
-    // read four 2byte ints dimensions
+    // read four 2byte ints dimensions 
     const dimensions: CanvasDimensions = new Array(4) as CanvasDimensions;
-    const int16Array = new Int16Array(arrayBuffer, OFFSET, 4);
-    // read 4 dimensions
-    for(let i = 0; i < 4; i++) {
-        dimensions[i] = int16Array[i];
+    for (let i = 0; i < 4; i++) {
+        dimensions[i] = dataView.getInt16(OFFSET);
+        OFFSET += 2;
     }
-    OFFSET += int16Array.byteLength;
 
-    // we will read 7 4-byte floats below
-    const floatArray = new Float32Array(arrayBuffer, OFFSET, 7);
-    // cameraVector
-    const cameraVector = new Vector(floatArray[0], floatArray[1], floatArray[2]);
-    // canvasSize
-    const canvasSize: CanvasSize = [floatArray[3], floatArray[4]]
-    // viewPort
-    const viewPort: ViewPort = [floatArray[5], floatArray[6]];
-    OFFSET += floatArray.byteLength;
+    const canvasSize: CanvasSize = [dataView.getInt16(OFFSET), dataView.getInt16(OFFSET+2)];
+    OFFSET += 4;
 
-    // spheres
-    const bytesLeft = arrayBuffer.byteLength - OFFSET;
-    const spheresCount = bytesLeft / Sphere.BYTE_SIZE;
+    const floats = new Array(5).fill(0).map(() => {
+        const floatVal = dataView.getFloat32(OFFSET);
+        OFFSET += 4;
+        return floatVal;
+    });
+
+    const cameraVector = new Vector(floats[0], floats[1], floats[2]);
+    const viewPort: ViewPort = [floats[3], floats[4]];
+
     const spheres: Sphere[] = [];
+    const leftBytes = dataView.byteLength - OFFSET;
+    const spheresCount = leftBytes / Sphere.BYTE_SIZE;
+    const sphereByteSize = Sphere.BYTE_SIZE;
     for (let i = 0; i < spheresCount; i++) {
-        const sphere = Sphere.readFromArrayBuffer(arrayBuffer, OFFSET);
+        const sphereView = new DataView(arrayBuffer, OFFSET, sphereByteSize);
+        const sphere = Sphere.readFromDataView(sphereView);
         spheres.push(sphere);
         OFFSET += Sphere.BYTE_SIZE;
     }
+
 
     return {
         dimensions,

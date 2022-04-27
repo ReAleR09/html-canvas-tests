@@ -1,10 +1,11 @@
-import { Color } from "../../color";
-import { Point } from "../../models/Point";
-import { Sphere } from "../../models/Sphere";
-import { Vector } from "../../models/Vector";
-import { traceRay } from "../../raytracing";
-import { arrayBufferToParams } from "../../utils/renderParams";
-import { RenderResults } from "../../utils/renderResults";
+import { Color } from "../color";
+import { Point } from "../models/Point";
+import { Sphere } from "../models/Sphere";
+import { Vector } from "../models/Vector";
+import { traceRay } from "../raytracing";
+import { arrayBufferToParams } from "../utils/renderParams";
+import { RenderResults } from "../utils/renderResults";
+
 
 const centeredCoordsToViewpointVector = (
     x: number,
@@ -28,11 +29,15 @@ const calcPixel = (viewpointVector: Vector, spheres: Sphere[], COs: Vector[]): C
 
 self.addEventListener('message', (event: MessageEvent) => {
     const arrayBuffer = event.data as ArrayBuffer;
+    // TODO somehow WEBPACK?! sends messages here so i have to turn them down?!1
+    if (!(arrayBuffer instanceof ArrayBuffer)) {
+        return;
+    }
     const {
         cameraVector,
         dimensions: [xStart, xEnd, yStart, yEnd],
         spheres,
-        // checkerboard,
+        checkerboard,
         canvasSize,
         viewPort
     } = arrayBufferToParams(arrayBuffer);
