@@ -1,7 +1,7 @@
-import { Color } from "../models/color";
+import { CAMERA_ROTATION_MATRIX } from "../models/camera";
 import { Point } from "../models/Point";
-import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";
+import { multiplyMV } from "../renderers/calc/matrix";
 import { traceRay } from "../renderers/calc/raytracing";
 import { deserializeParams, RenderDataSerialized } from "../utils/renderParams";
 
@@ -13,12 +13,12 @@ const centeredCoordsToViewpointVector = (
     viewportW: number,
     viewportH: number,
 ): Vector => {
-    const point = new Point(
+    const cameraDirectionVector = new Vector(
         x * viewportW / canvasWidth,
         y * viewportH / canvasHeight,
         1 // TODO clarify this
     );
-    return  Vector.fromPoint(point);
+    return  multiplyMV(CAMERA_ROTATION_MATRIX, cameraDirectionVector);
 }
 
 self.addEventListener('message', ({data}: MessageEvent<RenderDataSerialized>) => {

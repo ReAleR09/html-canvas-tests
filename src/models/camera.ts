@@ -1,6 +1,13 @@
 import { KEYS_PRESSED } from "./input";
 import { Point } from "./Point";
 
+// TODO think this through
+export const CAMERA_ROTATION_MATRIX = [
+    [0.7071, 0, -0.7071],
+    [0, 1, 0],
+    [0.7071,0, 0.7071]]
+;
+
 // left-right, up-down, close-far
 const CAMERA_POS = new Point(0, 0, 2);
 export const updateCamera = (): Point => {
