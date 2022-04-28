@@ -1,19 +1,27 @@
 // const webpack = require('webpack');
 const path = require('path');
-// const CopyPlugin = require('copy-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const config = {
-  entry: './src/index.ts',
+  entry: {
+    main: './src/index.ts',
+    // '../server': './server.js'
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: '[name].js'
   },
   plugins: [
     new HtmlWebpackPlugin({
         template: './src/index.html',   
         title: 'GRAPHON',
-    })
+    }),
+    // new CopyPlugin({
+    //     patterns: [
+    //       { from: "server.js", to: "../server.js" },
+    //     ],
+    // }),
   ],
   module: {
     rules: [

@@ -1,5 +1,4 @@
-import { CAMERA_ROTATION_MATRIX } from "../models/camera";
-import { Point } from "../models/Point";
+import { CAMERA_ROTATION_MATRIX } from "../config";
 import { Vector } from "../models/Vector";
 import { multiplyMV } from "../renderers/calc/matrix";
 import { traceRay } from "../renderers/calc/raytracing";
@@ -18,7 +17,7 @@ const centeredCoordsToViewpointVector = (
         y * viewportH / canvasHeight,
         1 // TODO clarify this
     );
-    return  multiplyMV(CAMERA_ROTATION_MATRIX, cameraDirectionVector);
+    return multiplyMV(CAMERA_ROTATION_MATRIX, cameraDirectionVector);
 }
 
 self.addEventListener('message', ({data}: MessageEvent<RenderDataSerialized>) => {
