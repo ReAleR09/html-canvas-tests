@@ -1,10 +1,8 @@
-import { Canvas } from "../canvas";
-import { Color } from "../color";
-import { Point } from "../models/Point";
+import { Canvas } from "../models/canvas";
+import { Color } from "../models/color";
 import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";
 import { traceRay } from "../raytracing";
-import { CanvasDimensions } from "../types/CanvasDivensions";
 
 export abstract class RendererAbstract {
 

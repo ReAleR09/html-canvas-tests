@@ -1,4 +1,4 @@
-import { Color } from "../color";
+import { Color } from "../models/color";
 import { Point } from "../models/Point";
 import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";

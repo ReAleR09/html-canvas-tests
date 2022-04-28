@@ -1,7 +1,7 @@
 import { Color } from './color';
-import { Point } from './models/Point';
-import { Vector } from './models/Vector';
-import { CanvasDimensions } from './types/CanvasDivensions';
+import { Point } from './Point';
+import { Vector } from './Vector';
+import { CanvasDimensions } from '../types/CanvasDivensions';
 
 export class Canvas {
     

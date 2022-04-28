@@ -1,7 +1,7 @@
 import { Vector } from "../models/Vector";
 import { paramsToArrayBuffer } from "../utils/renderParams";
 import { Sphere } from "../models/Sphere";
-import { Canvas } from "../canvas";
+import { Canvas } from "../models/canvas";
 import { RendererAbstract } from "./renderer.abstract";
 import { WorkerOutputMessage } from "../types/render-worker";
 
