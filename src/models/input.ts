@@ -24,10 +24,10 @@ const setKey = (keyCode: string, isDown: boolean) => {
 
 document.addEventListener('keydown', function (event) {
     setKey(event.code, true);
-    event.preventDefault();
+    event.stopPropagation();
 });
 
 document.addEventListener('keyup', function (event) {
     setKey(event.code, false);
-    event.preventDefault();
+    event.stopPropagation();
 });

@@ -1,9 +1,10 @@
 import { Vector } from "../models/Vector";
-import { paramsToArrayBuffer } from "../utils/renderParams";
 import { Sphere } from "../models/Sphere";
 import { Canvas } from "../models/canvas";
 import { RendererAbstract } from "./renderer.abstract";
+import { serializeParams } from "../utils/renderParams";
 import { WorkerOutputMessage } from "../types/render-worker";
+import { Light } from "../models/light";
 
 export class ParallelledRender extends RendererAbstract {
 
@@ -29,7 +30,7 @@ export class ParallelledRender extends RendererAbstract {
         this.yChunkSize = Math.ceil((dimensions.yEnd - dimensions.yStart) / workers.length);
     }
 
-    protected async _render(cameraVector: Vector, spheres: Sphere[]): Promise<void> {
+    protected async _render(cameraVector: Vector, spheres: Sphere[], lights: Light[]): Promise<void> {
         const workersPromise = this._prepareWorkers();
 
         const dimensions = this.canvas.getCanvasDimensionsInCenteredCoords();
@@ -41,20 +42,19 @@ export class ParallelledRender extends RendererAbstract {
                 yStart = dimensions.yStart
             }
 
-            const renderParamsArrayBuffer = paramsToArrayBuffer({
+            const renderParamsArrayBuffer = serializeParams({
+                id: index,
                 dimensions: [dimensions.xStart, dimensions.xEnd, yStart, yEnd],
                 checkerboard: this.checkerBoard,
                 cameraVector,
                 spheres,
                 canvasSize: [this.canvas.width, this.canvas.height],
-                viewPort: [this.canvas.viewPort[0], this.canvas.viewPort[1]]
+                viewPort: [this.canvas.viewPort[0], this.canvas.viewPort[1]],
+                lights,
             });
 
             // and send it to worker
-            worker.postMessage({
-                buffer: renderParamsArrayBuffer,
-                id: index,
-            }, [renderParamsArrayBuffer]);
+            worker.postMessage(renderParamsArrayBuffer, []); // TODO pass as 'transferable' later
         });
 
         return workersPromise.then((calcData) => {

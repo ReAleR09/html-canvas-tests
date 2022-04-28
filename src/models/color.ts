@@ -1,23 +1,16 @@
 export class Color {
 
-	private arr: Uint8ClampedArray;
+    static readonly BYTES_PER_ELEMENT = 3; // 3*1byte
 
-	constructor(r: number, g: number, b: number) {
-		const buf = new ArrayBuffer(3);
-		const arr = new Uint8ClampedArray(buf);
-		arr[0] = r;
-		arr[1] = g;
-		arr[2] = b;
-		this.arr = arr;
-	}
+	constructor(public r: number, public g: number, public b: number) { }
 
-	get r() {return this.arr[0];}
-	get g() {return this.arr[1];}
-	get b() {return this.arr[2];}
-
-	toBuffer() {
-		return this.arr.buffer;
-	}
+    asBuffer(): ArrayBuffer {
+        return Uint8ClampedArray.of(this.r, this.g, this.b).buffer;
+    }
+    static fromBuffer(arrayBuffer: ArrayBuffer, OFFSET = 0): Color {
+        const arr = new Uint8ClampedArray(arrayBuffer, OFFSET, 3);
+        return new Color(arr[0], arr[1], arr[2]);
+    }
 	
 	add(o: Color): Color {
 		return new Color(this.r + o.r, this.g + o.g, this.b + o.b)
@@ -25,10 +18,6 @@ export class Color {
 
 	invert(): Color  {
 		return new Color(255 - this.r, 255 - this.g, 255 - this.b)
-	}
-
-	asArray() {
-		return [this.r, this.g, this.b];
 	}
 
 	mul(s: number) {

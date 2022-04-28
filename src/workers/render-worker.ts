@@ -3,8 +3,7 @@ import { Point } from "../models/Point";
 import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";
 import { traceRay } from "../raytracing";
-import { WorkerInputMessage } from "../types/render-worker";
-import { arrayBufferToParams } from "../utils/renderParams";
+import { deserializeParams, RenderDataSerialized } from "../utils/renderParams";
 
 const centeredCoordsToViewpointVector = (
     x: number,
@@ -22,23 +21,18 @@ const centeredCoordsToViewpointVector = (
     return  Vector.fromPoint(point);
 }
 
-const calcPixel = (viewpointVector: Vector, spheres: Sphere[], COs: Vector[]): Color =>  {
-    return traceRay(spheres, COs, viewpointVector, 1, Infinity);
-}
-
-self.addEventListener('message', ({data: {
-    buffer,
-    id
-}}: MessageEvent<WorkerInputMessage>) => {
+self.addEventListener('message', ({data}: MessageEvent<RenderDataSerialized>) => {
     
     const {
+        id,
         cameraVector,
         dimensions: [xStart, xEnd, yStart, yEnd],
         spheres,
         checkerboard,
         canvasSize,
-        viewPort
-    } = arrayBufferToParams(buffer);
+        viewPort,
+        lights
+    } = deserializeParams(data);
 
     const COs = spheres.map((sphere) => cameraVector.sub(Vector.fromPoint(sphere.center)));
     
@@ -55,7 +49,7 @@ self.addEventListener('message', ({data: {
                 canvasSize[0], canvasSize[1],
                 viewPort[0], viewPort[1]
             );
-            const color = calcPixel(viewpointVector, spheres, COs);
+            const color = traceRay(spheres, lights, COs, viewpointVector, 1, Infinity);
             uintArray[OFFSET] = color.r;
             uintArray[OFFSET+1] = color.g;
             uintArray[OFFSET+2] = color.b;

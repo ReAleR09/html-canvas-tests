@@ -2,21 +2,17 @@ import { Vector } from "./Vector";
 
 export class Point {
 
-	protected arr: Float32Array;
+    static readonly BYTES_PER_ELEMENT = 12; // 3*4byte
 
-	constructor(x: number, y: number, z: number) {
-		const buf = new ArrayBuffer(3 * 4);
-		const arr = new Float32Array(buf, 0, 3);
-		arr[0] = x;
-		arr[1] = y;
-		arr[2] = z;
-		this.arr = arr;
-	}
+	constructor(public x: number, public y: number, public z: number) {}
 
-	get x() {return this.arr[0];}
-	get y() {return this.arr[1];}
-	get z() {return this.arr[2];}
-	toBuffer() {return this.arr.buffer;}
+	asBuffer(): ArrayBuffer {
+        return Float32Array.of(this.x, this.y, this.z).buffer;
+    }
+    static fromBuffer(arrayBuffer: ArrayBuffer, OFFSET: 0): Point {
+        const arr = new Float32Array(arrayBuffer, OFFSET, 3);
+        return new Point(arr[0], arr[1], arr[2]);
+    }
 
 	add(o: Point): Vector {
 		return new Vector(this.x + o.x, this.y + o.y, this.z + o.z);
@@ -31,8 +27,8 @@ export class Point {
 	}
 
 	modify(diffX: number, diffY: number, diffZ: number): void {
-		this.arr[0] += diffX;
-		this.arr[1] += diffY;
-		this.arr[2] += diffZ;
+		this.x += diffX;
+		this.y += diffY;
+		this.z += diffZ;
 	}
 }

@@ -1,8 +1,16 @@
 import { BG_COLOR } from "./consts";
+import { computeLightning, Light } from "./models/light";
 import { Sphere } from "./models/Sphere";
 import { Vector } from "./models/Vector";
 
-export function traceRay(spheres: Sphere[], COs: Vector[], viewportVector: Vector, t_min: number, t_max: number) {
+export function traceRay(
+    spheres: Sphere[],
+    lights: Light[],
+    COs: Vector[],
+    viewportVector: Vector,
+    t_min: number,
+    t_max: number
+) {
 	let closest_t = Infinity;
 	let closestSphereIndex: number|null = null;
 	let isInside = false;
@@ -30,16 +38,16 @@ export function traceRay(spheres: Sphere[], COs: Vector[], viewportVector: Vecto
 	
 	const closest_sphere = spheres[closestSphereIndex];
 	const color = isInside ? closest_sphere.color.invert() : closest_sphere.color;
-	return color;
+	// return color;
 
 	// restore the 'O'
-	// const O = COs[closestSphereIndex].add(closest_sphere.center)
-	// const P = O.add(viewportVector.mul(closest_t));
+	const O = COs[closestSphereIndex].add(closest_sphere.center)
+	const P = O.add(viewportVector.mul(closest_t));
 
-	// let N = Vector.fromPoint(P.sub(closest_sphere.center));
-	// N =  N.mul(1 / N.length());
+	let N = Vector.fromPoint(P.sub(closest_sphere.center));
+	N =  N.mul(1 / N.length());
 	
-	// return closest_sphere.color.mul(computeLightning(P, N, lights));
+	return closest_sphere.color.mul(computeLightning(P, N, lights));
 }
 
 const bgPos = [Infinity, Infinity];

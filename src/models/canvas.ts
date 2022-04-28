@@ -17,11 +17,12 @@ export class Canvas {
         this.context2d = context2d;
         this.imageData = context2d.createImageData(canvas.width, canvas.height);
         let W = 1, H = 1;
-        if (canvas.width > canvas.height) {
-            W = canvas.width / canvas.height;
-        } else if (canvas.width < canvas.height) {
-            H = canvas.height / canvas.width;
-        }
+        // TODO what?
+        // if (canvas.width > canvas.height) {
+        //     W = canvas.width / canvas.height;
+        // } else if (canvas.width < canvas.height) {
+        //     H = canvas.height / canvas.width;
+        // }
         this.viewPort = [W, H];
     }
 

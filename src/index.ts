@@ -1,4 +1,3 @@
-require('./utils/setImmediatePoly');
 import { Canvas } from "./models/canvas";
 import { IS_CHECKERBOARD_ENABLED, WEB_WORKERS, FPS_MEASURE_COUNTER } from "./consts";
 import { Point } from "./models/Point";
@@ -7,34 +6,9 @@ import { ClassicRender } from "./renderers/classic";
 import { ParallelledRender } from "./renderers/parallelled";
 import { RendererAbstract } from "./renderers/renderer.abstract";
 import { KEYS_PRESSED } from "./models/input";
-import { SPHERES } from "./objects";
-
-// left-right, up-down, close-far
-const CAMERA_POS = new Point(0, 0, 0);
-const updateCamera = () => {
-  let [x, y, z] = [0, 0, 0];
-  if (KEYS_PRESSED.KeyA) {
-    x -= 0.02;
-  }
-  if (KEYS_PRESSED.KeyD) {
-    x += 0.02;
-  }
-  if (KEYS_PRESSED.KeyW) {
-    y += 0.02;
-  }
-  if (KEYS_PRESSED.KeyS) {
-    y -= 0.02;
-  }
-  if (KEYS_PRESSED.ArrowUp) {
-    z += 0.02;
-  }
-  if (KEYS_PRESSED.ArrowDown) {
-    z -= 0.02;
-  }
-  CAMERA_POS.modify(x, y, z);
-}
-
-
+import { LIGHTS, SPHERES } from "./objects";
+import { lightTour } from "./misc/lightTour";
+import { updateCamera } from "./models/camera";
 
 const start = async () => {
     const canvasEl = document.getElementById('canvas') as HTMLCanvasElement;
@@ -60,10 +34,11 @@ const start = async () => {
         secondsPassed = (timeStamp - oldTimeStamp) / 1000;
         oldTimeStamp = timeStamp;
         
-        updateCamera();
-        const cameraVector = Vector.fromPoint(CAMERA_POS);
+        lightTour(); // TODO remove later
+        const cameraPos = updateCamera();
+        const cameraVector = Vector.fromPoint(cameraPos);
         const startFrame = performance.now();
-		    await renderer.render(cameraVector, SPHERES);
+        await renderer.render(cameraVector, SPHERES, LIGHTS);
         const frameTime = performance.now() - startFrame;
 
         // re-calculate fps
