@@ -1,4 +1,4 @@
-import { Light } from "../models/light";
+import { LightSource } from "../models/light";
 import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";
 import { concatBuffers } from "./buffers";
@@ -11,7 +11,7 @@ export interface RenderData {
     cameraVector: Vector;
     viewPort: [h: number, v: number];
     spheres: Sphere[];
-    lights: Light[];
+    lights: LightSource[];
 }
 
 export interface RenderDataSerialized {
@@ -47,6 +47,6 @@ export const deserializeParams = (data: RenderDataSerialized): RenderData => {
         cameraVector: Vector.fromBuffer(data.cameraVector),
         viewPort: [...new Float32Array(data.viewPort)] as [number, number],
         spheres: Sphere.fromBuffer(data.spheres),
-        lights: Light.fromBuffer(data.lights),
+        lights: LightSource.fromBuffer(data.lights),
     }
 }

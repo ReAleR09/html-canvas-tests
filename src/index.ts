@@ -1,11 +1,9 @@
 import { Canvas } from "./models/canvas";
-import { IS_CHECKERBOARD_ENABLED, WEB_WORKERS, FPS_MEASURE_COUNTER } from "./consts";
-import { Point } from "./models/Point";
+import { IS_CHECKERBOARD_ENABLED, WEB_WORKERS, FPS_MEASURE_COUNTER } from "./config";
 import { Vector } from "./models/Vector";
 import { ClassicRender } from "./renderers/classic";
 import { ParallelledRender } from "./renderers/parallelled";
 import { RendererAbstract } from "./renderers/renderer.abstract";
-import { KEYS_PRESSED } from "./models/input";
 import { LIGHTS, SPHERES } from "./objects";
 import { lightTour } from "./misc/lightTour";
 import { updateCamera } from "./models/camera";

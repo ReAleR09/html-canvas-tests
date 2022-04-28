@@ -2,21 +2,21 @@ import { concatBuffers, splitBuffer } from "../utils/buffers";
 import { Point } from "./Point";
 import { Vector } from "./Vector";
 
-export enum LightType {
+export enum LightSourceType {
     ambient = 1,
     point,
     directional
 }
 
 type Params =
-    [LightType.ambient, number] | [LightType.point, number, Point] | [LightType.directional, number, Vector];
+    [LightSourceType.ambient, number] | [LightSourceType.point, number, Point] | [LightSourceType.directional, number, Vector];
 
-export class Light {
+export class LightSource {
 
     static readonly BYTES_PER_ELEMENT = 
         1 + 4 + Point.BYTES_PER_ELEMENT;
 
-    public type: LightType;
+    public type: LightSourceType;
     public intensity: number;
     public position?: Point|Vector;
     
@@ -37,11 +37,11 @@ export class Light {
         return concatBuffers(type, intensity, position);
     }
 
-    static fromBuffer(buffer: ArrayBuffer): Light[] {
-        const buffers = splitBuffer(buffer, Light.BYTES_PER_ELEMENT);
-        const lights: Light[] = buffers.map((buffer) => {
+    static fromBuffer(buffer: ArrayBuffer): LightSource[] {
+        const buffers = splitBuffer(buffer, LightSource.BYTES_PER_ELEMENT);
+        const lights: LightSource[] = buffers.map((buffer) => {
             const dataView = new DataView(buffer);
-            const type = dataView.getUint8(0) as LightType;
+            const type = dataView.getUint8(0) as LightSourceType;
             const intensity = dataView.getFloat32(1, true);
             let position: Point|Vector|undefined;
             const offset = 5;
@@ -49,39 +49,16 @@ export class Light {
             const y = dataView.getFloat32(offset+4, true);
             const z = dataView.getFloat32(offset+8, true);
             switch(type) {
-                case LightType.ambient:
+                case LightSourceType.ambient:
                     position = undefined; break;
-                case LightType.point:
+                case LightSourceType.point:
                     position = new Point(x, y, z); break;
-                case LightType.directional:
+                case LightSourceType.directional:
                     position = new Vector(x, y, z); break;
             }
-            return new Light(type as any, intensity, position as any);
+            return new LightSource(type as any, intensity, position as any);
         });
 
         return lights;
     }
-}
-
-export const computeLightning = (P: Vector, N: Vector, lights: Light[]) => {
-	let i = 0.0;
-	for (let light of lights) {
-		if (light.type === LightType.ambient) {
-			i += light.intensity;
-		} else {
-            const position = light.position as Vector;
-			let L: Vector;
-			if (light.type === LightType.point) {
-				L = Vector.fromPoint(position.sub(P));
-			} else {
-				L = position as Vector;
-			}
-			let n_dot_l = N.dot(L);
-			if (n_dot_l > 0) {
-				i += light.intensity * n_dot_l / (N.length() * L.length());
-			}
-		}
-	}
-	
-	return Math.min(1, i);
 }

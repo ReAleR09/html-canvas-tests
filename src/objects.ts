@@ -1,5 +1,5 @@
 import { Color } from "./models/color";
-import { Light, LightType } from "./models/light";
+import { LightSource, LightSourceType } from "./models/light";
 import { Point } from "./models/Point";
 import { Sphere } from "./models/Sphere";
 
@@ -10,8 +10,8 @@ export const SPHERES = [
 ];
 
 export const LIGHTS = [
-    new Light(LightType.point, 5, new Point(0, 0, 0)),
-    new Light(LightType.ambient, 0.08),
+    new LightSource(LightSourceType.point, 5, new Point(0, 0, 0)),
+    new LightSource(LightSourceType.ambient, 0.08),
     // new Light(LightType.directional, 5, new Vector(-5, 5, -10))
 ];
 

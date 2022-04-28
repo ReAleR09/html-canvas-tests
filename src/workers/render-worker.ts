@@ -2,7 +2,7 @@ import { Color } from "../models/color";
 import { Point } from "../models/Point";
 import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";
-import { traceRay } from "../raytracing";
+import { traceRay } from "../renderers/calc/raytracing";
 import { deserializeParams, RenderDataSerialized } from "../utils/renderParams";
 
 const centeredCoordsToViewpointVector = (

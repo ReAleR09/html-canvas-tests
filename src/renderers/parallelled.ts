@@ -4,7 +4,7 @@ import { Canvas } from "../models/canvas";
 import { RendererAbstract } from "./renderer.abstract";
 import { serializeParams } from "../utils/renderParams";
 import { WorkerOutputMessage } from "../types/render-worker";
-import { Light } from "../models/light";
+import { LightSource } from "../models/light";
 
 export class ParallelledRender extends RendererAbstract {
 
@@ -30,7 +30,7 @@ export class ParallelledRender extends RendererAbstract {
         this.yChunkSize = Math.ceil((dimensions.yEnd - dimensions.yStart) / workers.length);
     }
 
-    protected async _render(cameraVector: Vector, spheres: Sphere[], lights: Light[]): Promise<void> {
+    protected async _render(cameraVector: Vector, spheres: Sphere[], lights: LightSource[]): Promise<void> {
         const workersPromise = this._prepareWorkers();
 
         const dimensions = this.canvas.getCanvasDimensionsInCenteredCoords();

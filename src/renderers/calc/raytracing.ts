@@ -1,11 +1,12 @@
-import { BG_COLOR } from "./consts";
-import { computeLightning, Light } from "./models/light";
-import { Sphere } from "./models/Sphere";
-import { Vector } from "./models/Vector";
+import { BG_COLOR } from "../../config";
+import { LightSource } from "../../models/light";
+import { Sphere } from "../../models/Sphere";
+import { Vector } from "../../models/Vector";
+import { computeLightning } from "./light";
 
 export function traceRay(
     spheres: Sphere[],
-    lights: Light[],
+    lights: LightSource[],
     COs: Vector[],
     viewportVector: Vector,
     t_min: number,
