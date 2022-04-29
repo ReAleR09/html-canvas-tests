@@ -14,8 +14,8 @@ export class Point {
         return new Point(arr[0], arr[1], arr[2]);
     }
 
-	add(o: Point): Vector {
-		return new Vector(this.x + o.x, this.y + o.y, this.z + o.z);
+	add(o: Vector): Point {
+		return new Point(this.x + o.x, this.y + o.y, this.z + o.z);
 	}
 	
 	sub(o: Point|Vector): Vector {

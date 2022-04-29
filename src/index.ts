@@ -41,7 +41,7 @@ const start = async () => {
         if (fpsMeasures.length === FPS_MEASURE_COUNTER) {
             fps = Math.round(fpsMeasures.reduce((prev, curr) => prev + curr, 0) / FPS_MEASURE_COUNTER)
             fpsMeasures = [];
-            // console.log(`FPS: ${fps}, frame time: ${frameTime.toFixed(2)}ms`);
+            console.log(`FPS: ${fps}, frame time: ${frameTime.toFixed(2)}ms`);
         }
         
         // paint fps over canvas 
