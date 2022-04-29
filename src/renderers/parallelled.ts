@@ -5,6 +5,7 @@ import { RendererAbstract } from "./renderer.abstract";
 import { serializeParams } from "../utils/renderParams";
 import { WorkerOutputMessage } from "../types/render-worker";
 import { LightSource } from "../models/light";
+import { Point } from "../models/Point";
 
 export class ParallelledRender extends RendererAbstract {
 
@@ -30,7 +31,7 @@ export class ParallelledRender extends RendererAbstract {
         this.yChunkSize = Math.ceil((dimensions.yEnd - dimensions.yStart) / workers.length);
     }
 
-    protected async _render(cameraVector: Vector, spheres: Sphere[], lights: LightSource[]): Promise<void> {
+    protected async _render(camera, spheres: Sphere[], lights: LightSource[]): Promise<void> {
         const workersPromise = this._prepareWorkers();
 
         const dimensions = this.canvas.getCanvasDimensionsInCenteredCoords();
@@ -46,7 +47,7 @@ export class ParallelledRender extends RendererAbstract {
                 id: index,
                 dimensions: [dimensions.xStart, dimensions.xEnd, yStart, yEnd],
                 checkerboard: this.checkerBoard,
-                cameraVector,
+                camera,
                 spheres,
                 canvasSize: [this.canvas.width, this.canvas.height],
                 viewPort: [this.canvas.viewPort[0], this.canvas.viewPort[1]],

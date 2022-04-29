@@ -1,30 +1,41 @@
-import { CAMERA_ROTATION_MATRIX } from "../config";
+import { Camera } from "../models/camera";
+import { Point } from "../models/Point";
 import { Vector } from "../models/Vector";
-import { multiplyMV } from "../renderers/calc/matrix";
+import { getRotationMatrix, multiplyMatrices, multiplyMV, RotationMatrix } from "../renderers/calc/matrix";
 import { traceRay } from "../renderers/calc/raytracing";
 import { deserializeParams, RenderDataSerialized } from "../utils/renderParams";
 
-const centeredCoordsToViewpointVector = (
-    x: number,
-    y: number,
-    canvasWidth: number,
-    canvasHeight: number,
-    viewportW: number,
-    viewportH: number,
-): Vector => {
-    const cameraDirectionVector = new Vector(
-        x * viewportW / canvasWidth,
-        y * viewportH / canvasHeight,
-        1 // TODO clarify this
+const getCameraToViewportPointVector = (camVector: Vector, x: number, y: number): Vector => {
+    const cameraVector = new Vector(
+        x * camVector.x,
+        y * camVector.y,
+        1 // distance from camera to the viewport. Closer to viewport - wider the Field of View?
     );
-    return multiplyMV(CAMERA_ROTATION_MATRIX, cameraDirectionVector);
+    
+    return cameraVector;
+}
+
+const prepareCameraVector = (
+    camera: Camera,
+    canvas: [W: number, H: number],
+    viewport: [viewportW: number, viewportH: number]
+): Vector => {
+    const cameraRotationMx = getRotationMatrix(...camera.angles);
+    let someVector = new Vector(
+        viewport[0] / canvas[0],
+        viewport[1] / canvas[1],
+        1 // distance from camera to the viewport. Closer to viewport - wider the Field of View?
+    );
+    someVector = multiplyMV(cameraRotationMx, someVector);
+
+    return someVector;
 }
 
 self.addEventListener('message', ({data}: MessageEvent<RenderDataSerialized>) => {
     
     const {
         id,
-        cameraVector,
+        camera,
         dimensions: [xStart, xEnd, yStart, yEnd],
         spheres,
         checkerboard,
@@ -32,8 +43,11 @@ self.addEventListener('message', ({data}: MessageEvent<RenderDataSerialized>) =>
         viewPort,
         lights
     } = deserializeParams(data);
+    const cameraPos = new Point(...camera.pos);
+    
+    const preparedCameraVector = prepareCameraVector(camera, canvasSize, viewPort); 
 
-    const COs = spheres.map((sphere) => cameraVector.sub(Vector.fromPoint(sphere.center)));
+    const COs = spheres.map((sphere) => cameraPos.sub(Vector.fromPoint(sphere.center)));
     
     const actualWidth = Math.abs(xEnd - xStart);
     const actualHeight = Math.abs(yEnd - yStart);
@@ -43,11 +57,7 @@ self.addEventListener('message', ({data}: MessageEvent<RenderDataSerialized>) =>
 
     for (let y = yEnd; y > yStart; y--) {
         for (let x = xStart; x < xEnd; x++) {
-            const viewpointVector = centeredCoordsToViewpointVector(
-                x, y,
-                canvasSize[0], canvasSize[1],
-                viewPort[0], viewPort[1]
-            );
+            const viewpointVector = getCameraToViewportPointVector(preparedCameraVector, x, y);
             const color = traceRay(spheres, lights, COs, viewpointVector, 1, Infinity);
             uintArray[OFFSET] = color.r;
             uintArray[OFFSET+1] = color.g;

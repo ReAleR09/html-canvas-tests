@@ -1,6 +1,8 @@
+import { Camera } from "../models/camera";
 import { Canvas } from "../models/canvas";
 import { Color } from "../models/color";
 import { LightSource } from "../models/light";
+import { Point } from "../models/Point";
 import { Sphere } from "../models/Sphere";
 import { Vector } from "../models/Vector";
 import { traceRay } from "./calc/raytracing";
@@ -20,10 +22,10 @@ export abstract class RendererAbstract {
     /**
      * Inheritor is responsible for calculating all pixel data and putting
      * it to canvas'es image data
-     * @param cameraVector 
+     * @param cameraPos 
      * @param spheres 
      */
-    protected abstract _render(cameraVector: Vector, spheres: Sphere[], lights: LightSource[]): Promise<void>;
+    protected abstract _render(camera: Camera, spheres: Sphere[], lights: LightSource[]): Promise<void>;
 
     protected _getYstart() {
         const dimensions = this.canvas.getCanvasDimensionsInCenteredCoords();
@@ -32,8 +34,8 @@ export abstract class RendererAbstract {
             : dimensions.yStart;
     }
 
-    public async render(cameraVector: Vector, spheres: Sphere[], lights: LightSource[] = []): Promise<void> {
-        const promise = this._render(cameraVector, spheres, lights);
+    public async render(camera: Camera, spheres: Sphere[], lights: LightSource[] = []): Promise<void> {
+        const promise = this._render(camera, spheres, lights);
         this.isEvenDraw = !this.isEvenDraw;
         this.updateCanvas();
         return promise;

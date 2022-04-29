@@ -1,27 +1,24 @@
 import { Canvas } from "./models/canvas";
 import { IS_CHECKERBOARD_ENABLED, WEB_WORKERS, FPS_MEASURE_COUNTER } from "./config";
-import { Vector } from "./models/Vector";
-import { ClassicRender } from "./renderers/classic";
 import { ParallelledRender } from "./renderers/parallelled";
 import { RendererAbstract } from "./renderers/renderer.abstract";
 import { LIGHTS, SPHERES } from "./objects";
 import { lightTour } from "./misc/lightTour";
-import { updateCamera } from "./models/camera";
+import { KEYS_PRESSED, getAngleDiffs, attachMouseListenerToCanvas } from "./models/input";
+import { Camera } from "./models/camera";
 
 const start = async () => {
     const canvasEl = document.getElementById('canvas') as HTMLCanvasElement;
     const canvas = new Canvas(canvasEl);
+    attachMouseListenerToCanvas(canvasEl);
 
-    let renderer: RendererAbstract;
-    if (WEB_WORKERS > 0) {
-        renderer = new ParallelledRender(
-            canvas,
-            WEB_WORKERS,
-            IS_CHECKERBOARD_ENABLED,
-        );
-    } else {
-        renderer = new ClassicRender(canvas, IS_CHECKERBOARD_ENABLED);
-    }
+    const camera = new Camera();
+
+    const renderer: RendererAbstract = new ParallelledRender(
+        canvas,
+        WEB_WORKERS,
+        IS_CHECKERBOARD_ENABLED,
+    );
 
     let secondsPassed;
     let oldTimeStamp;
@@ -33,10 +30,10 @@ const start = async () => {
         oldTimeStamp = timeStamp;
         
         lightTour(); // TODO remove later
-        const cameraPos = updateCamera();
-        const cameraVector = Vector.fromPoint(cameraPos);
+        const anglesDiffs = getAngleDiffs();
+        camera.updateCameraPosition(KEYS_PRESSED, anglesDiffs);
         const startFrame = performance.now();
-        await renderer.render(cameraVector, SPHERES, LIGHTS);
+        await renderer.render(camera, SPHERES, LIGHTS);
         const frameTime = performance.now() - startFrame;
 
         // re-calculate fps
@@ -44,7 +41,7 @@ const start = async () => {
         if (fpsMeasures.length === FPS_MEASURE_COUNTER) {
             fps = Math.round(fpsMeasures.reduce((prev, curr) => prev + curr, 0) / FPS_MEASURE_COUNTER)
             fpsMeasures = [];
-            console.log(`FPS: ${fps}, frame time: ${frameTime.toFixed(2)}ms`);
+            // console.log(`FPS: ${fps}, frame time: ${frameTime.toFixed(2)}ms`);
         }
         
         // paint fps over canvas 

@@ -9,7 +9,7 @@ export class Point {
 	asBuffer(): ArrayBuffer {
         return Float32Array.of(this.x, this.y, this.z).buffer;
     }
-    static fromBuffer(arrayBuffer: ArrayBuffer, OFFSET: 0): Point {
+    static fromBuffer(arrayBuffer: ArrayBuffer, OFFSET = 0): Point {
         const arr = new Float32Array(arrayBuffer, OFFSET, 3);
         return new Point(arr[0], arr[1], arr[2]);
     }
