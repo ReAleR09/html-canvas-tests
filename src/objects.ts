@@ -11,9 +11,10 @@ export const SPHERES = [
 ];
 
 export const LIGHTS = [
-    new LightSource(LightSourceType.point, 1, new Point(0, 0, 0)),
+    // new LightSource(LightSourceType.point, 1, new Point(0, 0, 0)),
     new LightSource(LightSourceType.ambient, 0.05),
-    new LightSource(LightSourceType.directional, 100, new Vector(100, 100, 0))
+    // new LightSource(LightSourceType.directional, 100, new Vector(100, 100, 0)),
+    new LightSource(LightSourceType.point, 10, new Point(2, 2, 1))
 ];
 
 export const getLightPoint = (index: number) => LIGHTS[index].position as Point;

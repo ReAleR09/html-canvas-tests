@@ -29,7 +29,7 @@ const start = async () => {
         secondsPassed = (timeStamp - oldTimeStamp) / 1000;
         oldTimeStamp = timeStamp;
         
-        lightTour(); // TODO remove later
+        // lightTour(); // TODO remove later
         const camDiffs = getCameraDiffs();
         camera.updateCameraPosition(camDiffs[0], camDiffs[1]);
         const startFrame = performance.now();

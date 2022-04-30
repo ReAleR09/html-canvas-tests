@@ -9,9 +9,9 @@ export class Camera {
         public readonly angles: Triplet = [0, 0, 0],
     ) { }
 
-    updateCameraPosition(diffVector: Vector, angleDiffs: Triplet) {
+    updateCameraPosition(diffMov: Triplet, angleDiffs: Triplet) {
         // directed diff vector
-        const ddf = multiplyMV(getRotationMatrix(...this.angles), diffVector);
+        const ddf = multiplyMV(getRotationMatrix(...this.angles), new Vector(...diffMov));
         
         this.pos[0] += ddf.x * CAMERA_MOVE_SPEED;
         this.pos[1] += ddf.y * CAMERA_MOVE_SPEED;

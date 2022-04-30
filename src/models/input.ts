@@ -39,9 +39,9 @@ const SUM_MOUSE_MOVE_DIFF = [0, 0, 0];
 let IS_LMB_DOWN = false;
 let IS_RMB_DOWN = false;
 let IS_MMB_DOWN = false;
-const DIRECTION_FLAGS = new Vector(0, 0, 0);
+let DIRECTION_FLAGS = [0, 0, 0];
 
-// TODO distinguish RBM and rotate on zAxis
+// TODO BUG - UP/DOWN mouse on LMB acts different depends on left-right camera direction
 export const attachMouseListenerToCanvas = (canvasEl: HTMLCanvasElement) => {
     canvasEl.addEventListener("mousedown", (e) => {
         e.preventDefault();
@@ -54,7 +54,7 @@ export const attachMouseListenerToCanvas = (canvasEl: HTMLCanvasElement) => {
                 break;
             case 1:
                 IS_MMB_DOWN = true;
-                DIRECTION_FLAGS.y = 0;
+                DIRECTION_FLAGS[1] = 0;
                 break;
             case 2:
                 IS_RMB_DOWN = true;
@@ -66,7 +66,7 @@ export const attachMouseListenerToCanvas = (canvasEl: HTMLCanvasElement) => {
         e.preventDefault();
         e.stopPropagation();
         IS_LMB_DOWN = IS_RMB_DOWN = IS_MMB_DOWN = false;
-        DIRECTION_FLAGS.y = 0;
+        DIRECTION_FLAGS[1] = 0;
     });
     canvasEl.addEventListener("mousemove", (e) => {
         if(IS_LMB_DOWN) {
@@ -87,11 +87,11 @@ export const attachMouseListenerToCanvas = (canvasEl: HTMLCanvasElement) => {
         if(IS_MMB_DOWN) {
             const yMoveDiff = e.clientY - LAST_MOUSE_POS[2];
             if (yMoveDiff > 0) {
-                DIRECTION_FLAGS.y = 1;
+                DIRECTION_FLAGS[1] = 1;
             } else if (yMoveDiff < 0) {
-                DIRECTION_FLAGS.y = -1;
+                DIRECTION_FLAGS[1] = -1;
             } else {
-                DIRECTION_FLAGS.y = 0;
+                DIRECTION_FLAGS[1] = 0;
             }
             LAST_MOUSE_POS[2] = e.clientY;
             return;
@@ -99,30 +99,34 @@ export const attachMouseListenerToCanvas = (canvasEl: HTMLCanvasElement) => {
     });
     canvasEl.addEventListener("mouseleave", (e) => {
         IS_LMB_DOWN = IS_RMB_DOWN = IS_MMB_DOWN = false;
-        DIRECTION_FLAGS.y = 0;
+        DIRECTION_FLAGS[1] = 0;
     });
 }
 
-export const getCameraDiffs = (): [Vector, Triplet] => {
+export const getCameraDiffs = (): [Triplet, Triplet] => {
     // movement diffs
     
     if (KEYS_PRESSED.KeyA) {
-        DIRECTION_FLAGS.x -= 1;
+        DIRECTION_FLAGS[0] -= 1;
     }
     if (KEYS_PRESSED.KeyD) {
-        DIRECTION_FLAGS.x += 1;
+        DIRECTION_FLAGS[0] += 1;
     }
     if (KEYS_PRESSED.KeyW) {
-        DIRECTION_FLAGS.z += 1;
+        DIRECTION_FLAGS[2] += 1;
     }
     if (KEYS_PRESSED.KeyS) {
-        DIRECTION_FLAGS.z -= 1;
+        DIRECTION_FLAGS[2] -= 1;
     }
+    const directions = [...DIRECTION_FLAGS] as Triplet;
+    DIRECTION_FLAGS = [0, 0, 0];
+
 
     // Rotation diffs
     const rotateDiff = SUM_MOUSE_MOVE_DIFF.map((d) => d * CAMERA_ROTATION_SPEED) as Triplet;
     SUM_MOUSE_MOVE_DIFF[0] = SUM_MOUSE_MOVE_DIFF[1] = SUM_MOUSE_MOVE_DIFF[2] = 0;
 
-    return [DIRECTION_FLAGS, rotateDiff];
-
+    return [directions, rotateDiff];
 }
+
+document.oncontextmenu = (e) => e.preventDefault();
