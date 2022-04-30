@@ -1,14 +1,10 @@
 import { Vector } from "../../models/Vector";
+import { RotationMatrix, Triplet } from "../../types/tuples";
 
-export type RotationMatrix = [
-    [number, number, number],
-    [number, number, number],
-    [number, number, number],
-];
 
 export const multiplyMV = (mat: RotationMatrix, camDir: Vector) => {
     const vec = [camDir.x, camDir.y, camDir.z];
-    const result: [number, number, number] = [0, 0, 0];
+    const result: Triplet = [0, 0, 0];
   
     for (var i = 0; i < 3; i++) {
       for (var j = 0; j < 3; j++) {

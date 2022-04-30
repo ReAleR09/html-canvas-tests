@@ -1,47 +1,41 @@
 import { Camera } from "../models/camera";
 import { Point } from "../models/Point";
 import { Vector } from "../models/Vector";
-import { getRotationMatrix, multiplyMatrices, multiplyMV, RotationMatrix } from "../renderers/calc/matrix";
+import { getRotationMatrix, multiplyMV } from "../renderers/calc/matrix";
 import { traceRay } from "../renderers/calc/raytracing";
+import { DEFAULT_X_CAMERA_VECTOR, DEFAULT_Y_CAMERA_VECTOR, DEFAULT_Z_CAMERA_VECTOR } from "../utils/const";
 import { deserializeParams, RenderDataSerialized } from "../utils/renderParams";
 import { useMemo } from "../utils/useMemo";
 
-const DEFAULT_X_CAMERA_VECTOR = new Vector(1, 0, 0);
-const DEFAULT_Y_CAMERA_VECTOR = new Vector(0, 1, 0);
-const DEFAULT_Z_CAMERA_VECTOR = new Vector(0, 0, 1); // change 1 to something else to move viewport close or far to camera
 
-const computeParamsOnce = (
+const computeParams = (
     camera: Camera,
     canvasSizes: [W: number, H: number],
     viewportRatios: [viewportW: number, viewportH: number]
 ) => {
-    const params = useMemo('computeParamsOnce', [camera, canvasSizes, viewportRatios], () => {
-        // camera pos
-        const cameraPos = new Point(...camera.pos);
-        // prepare rotation matrix
-        const cameraRotationMx = getRotationMatrix(...camera.angles);
-        // rotate default vectors. x- and y- axis vectors will be UNIT vectors directed along viewport's x and y axis
-        const xAxisViewport = multiplyMV(cameraRotationMx, DEFAULT_X_CAMERA_VECTOR);
-        const yAxisViewport = multiplyMV(cameraRotationMx, DEFAULT_Y_CAMERA_VECTOR);
-        // this ector is a normal to viewport
-        const zAxisViewport = multiplyMV(cameraRotationMx, DEFAULT_Z_CAMERA_VECTOR);
-        // zero-center of new coords in real coords
-        const startPoint = new Point(...camera.pos).add(zAxisViewport);
+    // camera pos
+    const cameraPos = new Point(...camera.pos);
+    // prepare rotation matrix
+    const cameraRotationMx = getRotationMatrix(...camera.angles);
+    // rotate default vectors. x- and y- axis vectors will be UNIT vectors directed along viewport's x and y axis
+    const xAxisViewport = multiplyMV(cameraRotationMx, DEFAULT_X_CAMERA_VECTOR);
+    const yAxisViewport = multiplyMV(cameraRotationMx, DEFAULT_Y_CAMERA_VECTOR);
+    // this ector is a normal to viewport
+    const zAxisViewport = multiplyMV(cameraRotationMx, DEFAULT_Z_CAMERA_VECTOR);
+    // zero-center of new coords in real coords
+    const startPoint = new Point(...camera.pos).add(zAxisViewport);
 
-        const xAxisCanvasToCoordsRatio = viewportRatios[0] / canvasSizes[0];
-        const yAxisCanvasToCoordsRatio = viewportRatios[1] / canvasSizes[1];
+    const xAxisCanvasToCoordsRatio = viewportRatios[0] / canvasSizes[0];
+    const yAxisCanvasToCoordsRatio = viewportRatios[1] / canvasSizes[1];
 
-        return {
-            xAxisCanvasToCoordsRatio,
-            yAxisCanvasToCoordsRatio,
-            xAxisViewport,
-            yAxisViewport,
-            startPoint,
-            cameraPos
-        }
-    });
-    
-    return params;
+    return {
+        xAxisCanvasToCoordsRatio,
+        yAxisCanvasToCoordsRatio,
+        xAxisViewport,
+        yAxisViewport,
+        startPoint,
+        cameraPos
+    }
 }
 
 /**
@@ -61,7 +55,10 @@ const cameraToViewportVector = (
     const {
         cameraPos, startPoint, xAxisCanvasToCoordsRatio,
         xAxisViewport, yAxisCanvasToCoordsRatio, yAxisViewport
-    } = computeParamsOnce(camera, canvasSizes, viewportRatios);
+    } = useMemo(() => {
+        return computeParams(camera, canvasSizes, viewportRatios);
+    }, 'computeParamsOnce', [camera, canvasSizes, viewportRatios]);
+    
 
     // find x and y coords in the viewport coord sytem
     const xView = x * xAxisCanvasToCoordsRatio;

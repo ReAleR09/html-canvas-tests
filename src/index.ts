@@ -4,7 +4,7 @@ import { ParallelledRender } from "./renderers/parallelled";
 import { RendererAbstract } from "./renderers/renderer.abstract";
 import { LIGHTS, SPHERES } from "./objects";
 import { lightTour } from "./misc/lightTour";
-import { KEYS_PRESSED, getAngleDiffs, attachMouseListenerToCanvas } from "./models/input";
+import { attachMouseListenerToCanvas, getCameraDiffs } from "./models/input";
 import { Camera } from "./models/camera";
 
 const start = async () => {
@@ -30,8 +30,8 @@ const start = async () => {
         oldTimeStamp = timeStamp;
         
         lightTour(); // TODO remove later
-        const anglesDiffs = getAngleDiffs();
-        camera.updateCameraPosition(KEYS_PRESSED, anglesDiffs);
+        const camDiffs = getCameraDiffs();
+        camera.updateCameraPosition(camDiffs[0], camDiffs[1]);
         const startFrame = performance.now();
         await renderer.render(camera, SPHERES, LIGHTS);
         const frameTime = performance.now() - startFrame;

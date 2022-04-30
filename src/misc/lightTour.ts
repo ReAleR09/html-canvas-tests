@@ -1,8 +1,9 @@
 import { Point } from "../models/Point";
 import { getLightPoint } from "../objects";
+import { Triplet } from "../types/tuples";
 
 const STEPS_FOR_POINT_TO_POINT = 100;
-const getStepDiffs = (nextPoint: Point): [number, number, number] => {
+const getStepDiffs = (nextPoint: Point): Triplet => {
     const set =  nextPoint.sub(lightPoint).mul(1/STEPS_FOR_POINT_TO_POINT);
     return [set.x, set.y, set.z];
 }
@@ -21,7 +22,7 @@ const WAYPOINTS = [
 const lightPoint = getLightPoint(0);
 let CURR_POINT_INDEX = 0;
 let STEP_NUM = 0;
-let stepDiffs: [number, number, number] = getStepDiffs(WAYPOINTS[CURR_POINT_INDEX]);
+let stepDiffs: Triplet = getStepDiffs(WAYPOINTS[CURR_POINT_INDEX]);
 
 
 export const lightTour = () => {
