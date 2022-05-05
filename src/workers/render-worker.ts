@@ -84,14 +84,13 @@ self.addEventListener('message', ({data}: MessageEvent<RenderDataSerialized>) =>
         camera,
         dimensions: [xStart, xEnd, yStart, yEnd],
         spheres,
-        checkerboard,
         canvasSize,
         viewPort,
         lights
     } = deserializeParams(data);
     const cameraPos = new Point(...camera.pos);
     
-    const COs = spheres.map((sphere) => cameraPos.sub(Vector.fromPoint(sphere.center)));
+    const COs = spheres.map((sphere) => cameraPos.sub(sphere.center));
     
     const actualWidth = Math.abs(xEnd - xStart);
     const actualHeight = Math.abs(yEnd - yStart);

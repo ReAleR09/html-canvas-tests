@@ -3,6 +3,7 @@ import { Triplet } from "../types/tuples";
 import { CAMERA_MOVE_SPEED } from "../utils/const";
 import { Vector } from "./Vector";
 
+// FIXME proper camera rotation
 export class Camera {
     constructor(
         public readonly pos: Triplet = [0, 0, -2],

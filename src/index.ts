@@ -1,5 +1,5 @@
 import { Canvas } from "./models/canvas";
-import { IS_CHECKERBOARD_ENABLED, WEB_WORKERS, FPS_MEASURE_COUNTER } from "./config";
+import { WEB_WORKERS, FPS_MEASURE_COUNTER } from "./config";
 import { ParallelledRender } from "./renderers/parallelled";
 import { RendererAbstract } from "./renderers/renderer.abstract";
 import { LIGHTS, SPHERES } from "./objects";
@@ -17,7 +17,6 @@ const start = async () => {
     const renderer: RendererAbstract = new ParallelledRender(
         canvas,
         WEB_WORKERS,
-        IS_CHECKERBOARD_ENABLED,
     );
 
     let secondsPassed;

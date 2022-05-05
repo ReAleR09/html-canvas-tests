@@ -5,12 +5,13 @@ import { Point } from "./Point"
 export class Sphere {
 
     static readonly BYTES_PER_ELEMENT = 
-        Point.BYTES_PER_ELEMENT + 4 + Color.BYTES_PER_ELEMENT;
+        Point.BYTES_PER_ELEMENT + 4 + Color.BYTES_PER_ELEMENT + 2;
 
     constructor (
         public readonly center: Point, // 12
         public readonly radius: number, // 4
         public readonly color: Color, // 3
+        public readonly specular: number = -1 // 2
     ) {}
 
 
@@ -18,8 +19,9 @@ export class Sphere {
         const center = this.center.asBuffer();
         const radius = Float32Array.of(this.radius).buffer;
         const color = this.color.asBuffer();
+        const specular = Int16Array.of(this.specular).buffer;
 
-        return concatBuffers(center, radius, color);
+        return concatBuffers(center, radius, color, specular);
     }
 
     static fromBuffer(arrayBuffer: ArrayBuffer): Sphere[] {
@@ -30,8 +32,11 @@ export class Sphere {
             const radius = (new Float32Array(buffer, offset, 1))[0];
             offset += 4;
             const color = Color.fromBuffer(buffer, offset);
+            offset += Color.BYTES_PER_ELEMENT;
+            const dv = new DataView(buffer, offset);
+            const specular = dv.getInt16(0, true);
 
-            return new Sphere(center, radius, color);
+            return new Sphere(center, radius, color, specular);
         });
 
         return spheres;

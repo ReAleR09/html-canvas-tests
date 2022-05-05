@@ -15,9 +15,8 @@ export class ParallelledRender extends RendererAbstract {
     constructor(
         canvas: Canvas,
         workersCount = 4,
-        checkerBoard = false,
     ) {
-        super(canvas, checkerBoard);
+        super(canvas);
 
         const workers: Worker[] = [];
         for (let i = 0; i < workersCount; i++) {
@@ -46,7 +45,6 @@ export class ParallelledRender extends RendererAbstract {
             const renderParamsArrayBuffer = serializeParams({
                 id: index,
                 dimensions: [dimensions.xStart, dimensions.xEnd, yStart, yEnd],
-                checkerboard: this.checkerBoard,
                 camera,
                 spheres,
                 canvasSize: [this.canvas.width, this.canvas.height],
